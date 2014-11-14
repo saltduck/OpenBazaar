@@ -112,10 +112,12 @@ function installUbuntu {
   # print commands
   set -x
 
+  set +e
   sudo apt-get update
   sudo apt-get install python-pip build-essential python-zmq rng-tools
   sudo apt-get install python-dev g++ libjpeg-dev zlib1g-dev sqlite3 openssl
   sudo apt-get install alien libssl-dev python-virtualenv lintian libjs-jquery
+  set -e
 
   if [ ! -d "./env" ]; then
     virtualenv env
