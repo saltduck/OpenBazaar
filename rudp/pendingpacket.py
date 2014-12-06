@@ -7,11 +7,11 @@ class PendingPacket(object):
 
     def __init__(self, packet, packet_sender):
         self.loop = ioloop.IOLoop.current()
-        self.ee = EventEmitter()
+        self.event_emitter = EventEmitter()
 
         self._packet_sender = packet_sender
         self._packet = packet
-        self._intervalID = None
+        self._interval_id = None
         self._sending = False
         self._sending_count = 0
 
@@ -40,7 +40,7 @@ class PendingPacket(object):
 
         packet_send(0)
 
-        # self._intervalID = rudp.helpers.set_interval(
+        # self._interval_id = rudp.helpers.set_interval(
         #     packet_send,
         #     rudp.constants.TIMEOUT
         # )
@@ -54,8 +54,8 @@ class PendingPacket(object):
         self.log.debug('Pending Packet Acknowledged: %s', self._packet.get_sequence_number())
         self._sending = None
 
-        if self._intervalID:
-            self._intervalID.cancel()
-            self._intervalID = None
+        if self._interval_id:
+            self._interval_id.cancel()
+            self._interval_id = None
 
-        self.ee.emit('acknowledge')
+        self.event_emitter.emit('acknowledge')

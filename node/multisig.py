@@ -46,9 +46,9 @@ class Multisig(object):
         return obelisk.hash_160_to_bc_address(raw_addr, addrtype=0x05)
 
     def create_unsigned_transaction(self, destination, finished_cb):
-        def fetched(ec, history):
-            if ec is not None:
-                self.log.error("Error fetching history: %s", ec)
+        def fetched(escrow, history):
+            if escrow is not None:
+                self.log.error("Error fetching history: %s", escrow)
                 return
             self._fetched(history, destination, finished_cb)
 
@@ -181,8 +181,8 @@ class Escrow(object):
                                self.multisig.script)
 
     @staticmethod
-    def complete(tx, buyer_sigs, seller_sigs, script_code):
-        for i, _ in enumerate(tx.inputs):
+    def complete(transaction, buyer_sigs, seller_sigs, script_code):
+        for i, _ in enumerate(transaction.inputs):
             sigs = (buyer_sigs[i], seller_sigs[i])
             script = "\x00"
             for sig in sigs:
@@ -190,5 +190,5 @@ class Escrow(object):
             script += "\x4c"
             assert len(script_code) < 255
             script += chr(len(script_code)) + script_code
-            tx.inputs[i].script = script
-        return tx
+            transaction.inputs[i].script = script
+        return transaction

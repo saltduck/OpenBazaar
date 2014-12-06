@@ -18,14 +18,14 @@ class TestMultisig(unittest.TestCase):
         cls.client = obelisk.ObeliskOfLightClient("tcp://85.25.198.97:8081")
 
     @staticmethod
-    def _finished_escrow(escrow, tx):
+    def _finished_escrow(escrow, transaction):
         buyer_sigs = escrow.release_funds(
-            tx,
+            transaction,
             "b28c7003a7b6541cd1cd881928863abac0eff85f5afb40ff5561989c9fb95fb2".decode("hex")
         )
 
         completed_tx = escrow.claim_funds(
-            tx,
+            transaction,
             "5b05667dac199c48051932f14736e6f770e7a5917d2994a15a1508daa43bc9b0".decode("hex"),
             buyer_sigs
         )
@@ -39,36 +39,36 @@ class TestMultisig(unittest.TestCase):
         # TODO: Send to the bitcoin network
         escrow.initiate(
             "1Fufjpf9RM2aQsGedhSpbSCGRHrmLMJ7yY",
-            lambda tx: self._finished_escrow(escrow, tx)
+            lambda transaction: self._finished_escrow(escrow, transaction)
         )
 
-    def _finished_msig(self, msig, tx):
-        print tx
+    def _finished_msig(self, msig, transaction):
+        print transaction
         print ''
-        print tx.serialize().encode("hex")
+        print transaction.serialize().encode("hex")
         print ''
         sigs1 = msig.sign_all_inputs(
-            tx,
+            transaction,
             "b28c7003a7b6541cd1cd881928863abac0eff85f5afb40ff5561989c9fb95fb2".decode("hex")
         )
 
         sigs3 = msig.sign_all_inputs(
-            tx,
+            transaction,
             "b74dbef0909c96d5c2d6971b37c8c71d300e41cad60aeddd6b900bba61c49e70".decode("hex")
         )
 
         self.assertLess(len(msig.script), 255)
-        for i, _ in enumerate(tx.inputs):
+        for i, _ in enumerate(transaction.inputs):
             script = "\x00"
             for sig in (sigs1[i], sigs3[i]):
                 script += chr(len(sig)) + sig
             script += "\x4c"
             script += chr(len(msig.script)) + msig.script
             print "Script:", script.encode("hex")
-            tx.inputs[i].script = script
+            transaction.inputs[i].script = script
 
-        print tx
-        print tx.serialize().encode("hex")
+        print transaction
+        print transaction.serialize().encode("hex")
 
     def test_multisignature(self):
         msig = multisig.Multisig(self.client, 2, self.pubkeys)
@@ -76,7 +76,7 @@ class TestMultisig(unittest.TestCase):
 
         msig.create_unsigned_transaction(
             "1Fufjpf9RM2aQsGedhSpbSCGRHrmLMJ7yY",
-            lambda tx: self._finished_msig(msig, tx)
+            lambda transaction: self._finished_msig(msig, transaction)
         )
 
 

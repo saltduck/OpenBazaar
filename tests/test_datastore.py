@@ -16,14 +16,14 @@ class TestSqliteDatastore(unittest.TestCase):
                 ]
         }
         self.db_mock.select_entries.side_effect = data.__getitem__
-        self.d = datastore.SqliteDataStore(self.db_mock)
+        self.sqlite_datastore = datastore.SqliteDataStore(self.db_mock)
 
     def test_init(self):
-        self.assertIs(self.d.db_connection, self.db_mock)
-        self.assertIsInstance(self.d, UserDict.DictMixin)
+        self.assertIs(self.sqlite_datastore.db_connection, self.db_mock)
+        self.assertIsInstance(self.sqlite_datastore, UserDict.DictMixin)
 
     def test_keys(self):
-        keys = self.d.keys()
+        keys = self.sqlite_datastore.keys()
         self.assertEqual(len(keys), 2)
         self.assertIn('Zurich', keys)
         self.assertIn('CH', keys)

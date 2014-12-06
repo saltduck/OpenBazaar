@@ -31,12 +31,12 @@ class DHT(object):
 
     # pylint: disable=no-self-argument
     # pylint: disable=not-callable
-    def _synchronized(f):
+    def _synchronized(func):
         """Decorator for synchronizing access to DHT attributes."""
-        @functools.wraps(f)
+        @functools.wraps(func)
         def synced_f(self, *args, **kwargs):
             with self._lock:
-                return f(self, *args, **kwargs)
+                return func(self, *args, **kwargs)
         return synced_f
 
     @_synchronized
@@ -67,8 +67,8 @@ class DHT(object):
 
     def remove_peer(self, guid):
         if guid[:4] != 'seed':
-            for i, x in enumerate(self.active_peers):
-                if x.guid == guid:
+            for i, active_peer in enumerate(self.active_peers):
+                if active_peer.guid == guid:
                     self.log.debug('Remove Node: %s', guid)
                     del self.active_peers[i]
             self.routing_table.remove_contact(guid)
@@ -758,9 +758,9 @@ class DHT(object):
             close_nodes = self.routing_table.find_close_nodes(key, constants.ALPHA, self.settings['guid'])
             shortlist = []
 
-            for closeNode in close_nodes:
-                if closeNode.guid:
-                    shortlist.append((closeNode.hostname, closeNode.port, closeNode.guid))
+            for close_node in close_nodes:
+                if close_node.guid:
+                    shortlist.append((close_node.ip_address, close_node.port, close_node.guid))
 
             if len(shortlist) > 0:
                 new_search.add_to_shortlist(shortlist)
@@ -788,8 +788,8 @@ class DHT(object):
         # Update slow nodes count
         new_search.slow_node_count[0] = len(new_search.active_probes)
 
-        for i, x in enumerate(self.active_peers):
-            if not x.guid and not x.seed and x.guid[:4] != 'seed':
+        for i, active_peer in enumerate(self.active_peers):
+            if not active_peer.guid and not active_peer.seed:
                 self.log.debug('Deleting active peer with no GUID')
                 del self.active_peers[i]
 
@@ -815,8 +815,8 @@ class DHT(object):
 
         # Update closest node
         if len(self.active_peers):
-            closestPeer = self.active_peers[0]
-            new_search.previous_closest_node = (closestPeer.hostname, closestPeer.port, closestPeer.guid)
+            closest_peer = self.active_peers[0]
+            new_search.previous_closest_node = (closest_peer.hostname, closest_peer.port, closest_peer.guid)
 
         # Sort short list again
         if len(new_search.shortlist) > 1:

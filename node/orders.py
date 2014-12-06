@@ -151,8 +151,8 @@ class Orders(object):
             else:
                 offer_data_json = '{"Seller": {' + offer_data[0:index_of_seller_signature - 2]
                 offer_data_json = json.loads(str(offer_data_json))
-        except ValueError as e:
-            print 'JSON error: %s' % e
+        except ValueError as exc:
+            print 'JSON error: %s' % exc
             return ''
 
         return offer_data_json
@@ -244,7 +244,7 @@ class Orders(object):
                                Orders.State.SHIPPED,
                                Orders.State.COMPLETED):
 
-            def cb(total):
+            def send_to_client_callback(total):
                 if self.transport.handler is not None:
                     self.transport.handler.send_to_client(None, {"type": "order_payment_amount",
                                                                  "order_id": order_id,
@@ -260,7 +260,7 @@ class Orders(object):
             payment_address = scriptaddr(script)
 
             def get_unspent():
-                trust.get_unspent(payment_address, cb)
+                trust.get_unspent(payment_address, send_to_client_callback)
 
             threading.Thread(target=get_unspent).start()
 
@@ -517,14 +517,14 @@ class Orders(object):
             script = mk_multisig_script(pubkeys, 2, 3)
             multi_address = scriptaddr(script)
 
-            def cb(ec, history, order):
+            def callback(exc, history, order):
 
                 self.log.debug('Callback for history %s', history)
 
                 private_key = self.get_signing_key(seller['seller_contract_id'])
 
-                if ec is not None:
-                    self.log.error("Error fetching history: %s", ec)
+                if exc is not None:
+                    self.log.error("Error fetching history: %s", exc)
                     # TODO: Send error message to GUI
                     return
 
@@ -548,19 +548,19 @@ class Orders(object):
                 send_amount = total_amount - fee
 
                 payment_output = order['payment_address']
-                tx = mktx(
+                transaction = mktx(
                     inputs, [str(payment_output) + ":" + str(send_amount)]
                 )
 
                 # Sign all the inputs
                 signatures = []
-                for x in range(0, len(inputs)):
-                    ms = multisign(tx, x, script, private_key)
-                    signatures.append(ms)
+                for i in range(0, len(inputs)):
+                    singed_input = multisign(transaction, i, script, private_key)
+                    signatures.append(singed_input)
 
                 self.log.debug('Merchant TX Signatures: %s', signatures)
 
-                order['merchant_tx'] = tx
+                order['merchant_tx'] = transaction
                 order['merchant_script'] = script
                 order['buyer_order_id'] = buyer['buyer_order_id']
                 order['merchant_sigs'] = signatures
@@ -572,12 +572,12 @@ class Orders(object):
 
                 client.fetch_history(
                     multi_address,
-                    lambda ec, history, order=order: cb(ec, history, order)
+                    lambda exc, history, order=order: callback(exc, history, order)
                 )
 
             reactor.callFromThread(get_history)
-        except Exception as e:
-            self.log.debug('Error: %s', e)
+        except Exception as exc:
+            self.log.debug('Error: %s', exc)
 
     def accept_order(self, new_order):
 
@@ -816,13 +816,13 @@ class Orders(object):
         self.send_order(order_id, str(signed_data), msg['notary'])
 
     @staticmethod
-    def get_seed_contract_from_doublesigned(contract):
+    def get_seed_contract_from_dblsgnd(contract):
         start_index = contract.find('- -----BEGIN PGP SIGNED MESSAGE-----', 0, len(contract))
         end_index = contract.find('- -----END PGP SIGNATURE-----', start_index, len(contract))
         contract = contract[start_index:end_index + 29]
         return contract
 
-    def get_json_from_doublesigned_contract(self, contract):
+    def get_json_from_dblsgnd_contract(self, contract):
         start_index = contract.find("{", 0, len(contract))
         end_index = contract.find('- -----BEGIN PGP SIGNATURE-----', 0, len(contract))
         self.log.info(contract[start_index:end_index])

@@ -291,7 +291,7 @@ class MarketApplication(tornado.web.Application):
                     "MarketApplication.clean_upnp_port_mapping() failed!"
                 )
 
-    def shutdown(self, x=None, y=None):
+    def shutdown(self, x_param=None, y_param=None):
         self.shutdown_mutex.acquire()
         print "MarketApplication.shutdown!"
         log = logging.getLogger(

@@ -33,7 +33,7 @@ class TestDbOperations(unittest.TestCase):
         os.rmdir(cls.db_dir)
 
     def setUp(self):
-        self.db = db_store.Obdb(
+        self.obdb = db_store.Obdb(
             self.db_path,
             disable_sqlite_crypt=self.disable_sqlite_crypt
         )
@@ -47,10 +47,10 @@ class TestDbOperations(unittest.TestCase):
                            "rating": 10}
 
         # Use the insert operation to add it to the db
-        self.db.insert_entry("reviews", review_to_store)
+        self.obdb.insert_entry("reviews", review_to_store)
 
         # Try to retrieve the record we just added based on the pubkey
-        retrieved_review = self.db.select_entries("reviews", {"pubkey": "123"})
+        retrieved_review = self.obdb.select_entries("reviews", {"pubkey": "123"})
 
         # The above statement will return a list with all the
         # retrieved records as dictionaries
@@ -87,10 +87,10 @@ class TestDbOperations(unittest.TestCase):
                            "rating": 10}
 
         # Use the insert operation to add it to the db
-        self.db.insert_entry("reviews", review_to_store)
+        self.obdb.insert_entry("reviews", review_to_store)
 
         # Try to retrieve the record we just added based on the pubkey
-        retrieved_review = self.db.select_entries("reviews", {"pubkey": "321"})
+        retrieved_review = self.obdb.select_entries("reviews", {"pubkey": "321"})
 
         # The above statement will return a list with all the
         # retrieved records as dictionaries
@@ -120,11 +120,11 @@ class TestDbOperations(unittest.TestCase):
         )
 
         # By ommiting the second parameter, we are retrieving all reviews
-        all_reviews = self.db.select_entries("reviews")
+        all_reviews = self.obdb.select_entries("reviews")
         self.assertEqual(len(all_reviews), 2)
 
         # Use the <> operator. This should return the review with pubKey 123.
-        retrieved_review = self.db.select_entries(
+        retrieved_review = self.obdb.select_entries(
             "reviews",
             {"pubkey": {"value": "321", "sign": "<>"}}
         )
@@ -135,37 +135,37 @@ class TestDbOperations(unittest.TestCase):
             "123"
         )
 
-    def test_get_or_create_record_when_not_exists(self):
+    def test_get_create_non_exst_rcrd(self):
         record = {"city": "Zurich"}
         table = "settings"
-        retrieved_record = self.db.get_or_create(table, record)
+        retrieved_record = self.obdb.get_or_create(table, record)
         self.assertEqual(retrieved_record["city"], record["city"])
         # check that the missing fields were created as empty
         self.assertEqual(retrieved_record["countryCode"], "")
 
     def test_update_operation(self):
         # Retrieve the record with pubkey equal to '123'
-        retrieved_review = self.db.select_entries("reviews", {"pubkey": "321"})[0]
+        retrieved_review = self.obdb.select_entries("reviews", {"pubkey": "321"})[0]
 
         # Check that the rating is still '10' as expected
         self.assertEqual(retrieved_review["rating"], 10)
 
         # Update the record with pubkey equal to '123'
         # and lower its rating to 9
-        self.db.update_entries("reviews", {"rating": 9}, {"pubkey": "123"})
+        self.obdb.update_entries("reviews", {"rating": 9}, {"pubkey": "123"})
 
         # Retrieve the same record again
-        retrieved_review = self.db.select_entries("reviews", {"pubkey": "123"})[0]
+        retrieved_review = self.obdb.select_entries("reviews", {"pubkey": "123"})[0]
 
         # Test that the rating has been updated succesfully
         self.assertEqual(retrieved_review["rating"], 9)
 
     def test_delete_operation(self):
         # Delete the entry with pubkey equal to '123'
-        self.db.delete_entries("reviews", {"pubkey": "123"})
+        self.obdb.delete_entries("reviews", {"pubkey": "123"})
 
         # Looking for this record with will bring nothing
-        retrieved_review = self.db.select_entries("reviews", {"pubkey": "123"})
+        retrieved_review = self.obdb.select_entries("reviews", {"pubkey": "123"})
         self.assertEqual(len(retrieved_review), 0)
 
 
