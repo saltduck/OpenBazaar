@@ -12,6 +12,6 @@ qrcode==5.1
 requests==2.5.1
 tornado==4.0.2
 Twisted==14.0.2
-rfc3986==0.2.0
+rfc3986==0.2.1
 dnschain==0.1.0
 pyee==0.1.0
