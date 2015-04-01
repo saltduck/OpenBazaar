@@ -1,5 +1,5 @@
 IPy==0.82a
-Pillow==2.7
+Pillow==2.8.1
 miniupnpc==1.9
 psutil==2.2.0
 bitcoin==1.1.25
