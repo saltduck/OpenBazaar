@@ -1120,7 +1120,7 @@ class ProtocolHandler(object):
         self.log.debug('Found Contracts: %s', type(results))
         self.log.debug(results)
 
-        # if type(results) is not 'dict':
+        # if not isinstance(results, dict):
         #     self.log.error('Legacy node returned list of close nodes.')
         #     return
 
