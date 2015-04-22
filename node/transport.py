@@ -19,6 +19,7 @@ from node.dht import DHT
 from rudp.packet import Packet
 from node.crypto_util import Cryptor
 from node import constants
+import string
 
 
 class TransportLayer(object):
@@ -183,6 +184,13 @@ class CryptoTransportLayer(TransportLayer):
                     'v': constants.VERSION
                 })
 
+    def update_avatar(self, guid, avatar_url):
+        peer = self.dht.routing_table.get_contact(guid)
+        if peer:
+            peer.avatar_url = avatar_url
+        else:
+            self.log.error('Cannot find peer to update avatar')
+
     def start_listener(self):
         self.add_callbacks([
             (
@@ -273,6 +281,8 @@ class CryptoTransportLayer(TransportLayer):
                 if peer:
                     peer.reachable = True
                     peer.relaying = False
+                    peer._rudp_connection._sender._packet_sender.reachable = True
+                    peer._rudp_connection._sender._packet_sender.relaying = False
                 else:
                     self.log.debug('Do not know about this peer yet.')
                 return
@@ -316,8 +326,6 @@ class CryptoTransportLayer(TransportLayer):
                     else:
 
                         inbound_peer._rudp_connection.receive(packet)
-
-                    self.log.debug('Updated peers: %s', self.dht.active_peers)
 
                 else:
                     self.log.debug('Did not find a peer')
@@ -745,7 +753,7 @@ class CryptoTransportLayer(TransportLayer):
             self._generate_new_keypair()
 
         if not self.settings.get('nickname'):
-            newsettings = {'nickname': 'Default'}
+            newsettings = {'nickname': 'User %s' % ''.join(random.choice(string.lowercase) for i in range(5))}
             self.db_connection.update_entries('settings', newsettings, {"market_id": self.market_id})
             self.settings.update(newsettings)
 
@@ -848,9 +856,7 @@ class CryptoTransportLayer(TransportLayer):
             peer_obj.seed = True
             peer_obj.reachable = True  # Seeds should be reachable always
 
-            # self.dht.active_peers.append(peer_obj)
-
-        ioloop.IOLoop.instance().call_later(15, self.search_for_my_node)
+        ioloop.IOLoop.instance().call_later(30, self.search_for_my_node)
 
         if callback is not None:
             callback('Joined')

@@ -79,6 +79,7 @@ class PeerConnection(GUIDMixin, object):
                     self.reachable = True
                     self.relaying = True
                     self._rudp_connection._sender._packet_sender.relaying = True
+                    self._rudp_connection._sender._packet_sender.reachable = True
 
                     self.log.debug('Relay Hello through Seed')
                     hello_msg['relayed'] = True
@@ -103,18 +104,16 @@ class PeerConnection(GUIDMixin, object):
         def pinger():
             self.log.debug('Pinging: %s', self.guid)
 
-            if time.time() - self.last_reached <= 15:
+            if time.time() - self.last_reached <= 30:
+                self.reachable = True
                 self.send_ping()
-                # if not self.relaying or self.transport.seed_mode:
-                #     self.send_ping()
-                # else:
-                #     self.send_relayed_ping()
             else:
-                self.ping_task.stop()
+                self.send_ping()
                 self.reachable = False
                 if self.guid:
                     self.log.error('Peer not responding. Removing.')
-                    self.transport.dht.remove_peer(self.guid)
+                    # TODO: Remove peers who are malicious/unresponsive
+                    # self.transport.dht.remove_peer(self.guid)
 
                 # Update GUI if possible
                 if self.transport.handler:
@@ -154,7 +153,6 @@ class PeerConnection(GUIDMixin, object):
                 except Exception as e:
                     self.log.debug('not yet %s', e)
                     self.transport.listener.on_raw_message(msg.get('payload'))
-
 
     def send_ping(self):
         self.sock.sendto('ping', (self.hostname, self.port))
@@ -527,10 +525,6 @@ class CryptoPeerListener(PeerListener):
                 if CryptoPeerListener.validate_signature(signature, signed_data):
                     message = signed_data.decode('hex')
                     message = json.loads(message)
-
-                    if message.get('guid') != self.guid:
-                        return False
-
                 else:
                     return
             except RuntimeError as e:

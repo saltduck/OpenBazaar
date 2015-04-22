@@ -48,7 +48,6 @@ angular.module('app')
                 Connection.$on('peer', function(e, msg){ $scope.add_peer(msg); });
                 Connection.$on('goodbye', function(e, msg){ $scope.goodbye(msg); });
                 Connection.$on('hello_response', function(e, msg){ $scope.hello_response(msg); });
-                listeners.peers = [];
                 Connection.$on('peers', function(e, msg){ $scope.update_peers(msg); });
                 Connection.$on('peer_remove', function(e, msg){ $scope.remove_peer(msg); });
                 if(!listeners.hasOwnProperty('inbox_count')) {
@@ -90,7 +89,7 @@ angular.module('app')
                 Connection.send('peers', {});
             };
 
-            $interval(refresh_peers, 30000, 0, true);
+            $interval(refresh_peers, 5000, 0, true);
 
             /**
              * Create a shout and send it to all connected peers
@@ -192,10 +191,6 @@ angular.module('app')
             $scope.parse_welcome = function(msg) {
 
                 console.log(msg);
-
-            };
-
-            $scope.guid_to_avatar = function(guid) {
 
             };
 
@@ -1024,12 +1019,24 @@ angular.module('app')
 
             };
 
+            var guid_to_peer = function(guid) {
+                for(var peer in $scope.myself.peers) {
+                    peer = $scope.myself.peers[peer];
+                    if(peer.guid == guid) {
+                        return peer;
+                    }
+                }
+                return {};
+            };
+
             var ViewInboxMessageInstanceCtrl = function($scope, $modalInstance, myself, msg, scope) {
                 $scope.myself = myself;
                 $scope.inbox = {};
                 $scope.inbox.message = msg;
 
                 $scope.inbox.message.nickname = scope.guid_to_nickname(msg.sender_guid);
+
+                $scope.sender = guid_to_peer(msg.sender_guid);
 
                 console.log('test', $scope);
 
