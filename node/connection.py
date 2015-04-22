@@ -10,7 +10,8 @@ import time
 import obelisk
 import socket
 
-from node import constants, network_util
+from node.constants import *
+from node import network_util
 from node.crypto_util import Cryptor
 from node.guid import GUIDMixin
 from rudp.connection import Connection
@@ -69,7 +70,7 @@ class PeerConnection(GUIDMixin, object):
                     'port': self.transport.port,
                     'senderNick': self.transport.nickname,
                     'avatar_url': self.transport.avatar_url,
-                    'v': constants.VERSION
+                    'v': VERSION
                 }
 
                 self.log.debug('Hello Content: %s', hello_msg)
@@ -95,7 +96,7 @@ class PeerConnection(GUIDMixin, object):
 
                 self.pinging = False
 
-            ioloop.IOLoop.instance().call_later(10, no_response)
+            ioloop.IOLoop.instance().call_later(PEERCONNECTION_NO_RESPONSE_DELAY_IN_SECONDS, no_response)
 
         self.seed = False
         self.punching = False
@@ -104,7 +105,7 @@ class PeerConnection(GUIDMixin, object):
         def pinger():
             self.log.debug('Pinging: %s', self.guid)
 
-            if time.time() - self.last_reached <= 30:
+            if time.time() - self.last_reached <= PEERCONNECTION_PINGER_TIMEOUT_IN_SECONDS:
                 self.reachable = True
                 self.send_ping()
             else:
@@ -121,7 +122,7 @@ class PeerConnection(GUIDMixin, object):
 
                     # yappi.get_thread_stats().print_all()
 
-        self.ping_task = ioloop.PeriodicCallback(pinger, 5000, io_loop=ioloop.IOLoop.instance())
+        self.ping_task = ioloop.PeriodicCallback(pinger, PEERCONNECTION_PING_TASK_INTERVAL_IN_MS, io_loop=ioloop.IOLoop.instance())
         self.ping_task.start()
 
     def setup_emitters(self):
@@ -155,8 +156,8 @@ class PeerConnection(GUIDMixin, object):
                     self.transport.listener.on_raw_message(msg.get('payload'))
 
     def send_ping(self):
-        self.sock.sendto('ping', (self.hostname, self.port))
-        count_outgoing_packet('ping')
+        self.sock.sendto(MSG_PING_ID, (self.hostname, self.port))
+        count_outgoing_packet(MSG_PING_ID)
         return True
 
     def send_relayed_ping(self):
@@ -223,7 +224,7 @@ class PeerConnection(GUIDMixin, object):
                         self.send_to_rudp(serialized)
                         return
 
-            ioloop.IOLoop.instance().call_later(5, sending_out)
+            ioloop.IOLoop.instance().call_later(PEERCONNECTION_SENDING_OUT_DELAY_IN_SECONDS, sending_out)
 
         sending_out()
 
@@ -295,7 +296,7 @@ class CryptoPeerConnection(PeerConnection):
         data['senderNick'] = self.transport.nickname
         data['avatar_url'] = self.transport.settings.get('avatar_url')
         data['senderNamecoin'] = self.transport.namecoin_id
-        data['v'] = constants.VERSION
+        data['v'] = VERSION
 
         # Sign cleartext data
         sig_data = json.dumps(data).encode('hex')
@@ -375,37 +376,37 @@ class PeerListener(GUIDMixin):
             while self.is_listening:
 
                 try:
-                    data, addr = self.socket.recvfrom(2048)
+                    data, addr = self.socket.recvfrom(PEERLISTENER_RECV_FROM_BUFFER_SIZE)
                     self.log.debug('Got data from %s:%d: %s', addr[0], addr[1], data[:50])
                     count_incoming_packet(data)
 
-                    if data[:4] == 'ping':
+                    if data[:MSG_PING_ID_SIZE] == MSG_PING_ID:
                         self.socket.sendto('pong', (addr[0], addr[1]))
                         count_outgoing_packet('pong')
-                    elif data[:4] == 'pong':
+                    elif data[:MSG_PONG_ID_SIZE] == MSG_PONG_ID:
                         self.ee.emit('on_pong_message', (data, addr))
 
-                    elif data[:15] == 'send_relay_ping':
+                    elif data[:MSG_SEND_RELAY_PING_ID_SIZE] == MSG_SEND_RELAY_PING_ID:
                         self.ee.emit('on_send_relay_ping', (data, addr))
 
-                    elif data[:10] == 'relay_ping':
+                    elif data[:MSG_RELAY_PING_ID_SIZE] == MSG_RELAY_PING_ID:
                         data = data.split(' ')
                         sender = self.guid
                         recipient = data[1]
                         self.socket.sendto('send_relay_pong %s %s' % (sender, recipient), (addr[0], addr[1]))
                         count_outgoing_packet('send_relay_pong %s %s' % (sender, recipient))
 
-                    elif data[:15] == 'send_relay_pong':
+                    elif data[:MSG_SEND_RELAY_PONG_ID_SIZE] == MSG_SEND_RELAY_PONG_ID:
                         self.ee.emit('on_send_relay_pong', (data, addr))
 
-                    elif data[:9] == 'heartbeat':
+                    elif data[:MSG_HEARTBEAT_ID_SIZE] == MSG_HEARTBEAT_ID:
                         self.log.debug('We just received a heartbeat.')
 
-                    elif data[:7] == 'relayto':
+                    elif data[:MSG_RELAYTO_ID_SIZE] == MSG_RELAYTO_ID:
                         self.log.debug('Relay To Packet')
                         self.ee.emit('on_relayto', data)
 
-                    elif data[:6] == 'relay ':
+                    elif data[:MSG_RELAY_ID_SIZE] == MSG_RELAY_ID:
                         self.log.debug('Relay Packet')
                         self.ee.emit('on_message', (data, addr))
 
