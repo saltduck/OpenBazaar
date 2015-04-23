@@ -44,6 +44,8 @@ class Market(object):
           gpg: Public PGP key class
         """
 
+        self.loop = ioloop.IOLoop.current()
+
         # Current
         self.transport = transport
         self.dht = transport.dht
@@ -91,10 +93,9 @@ class Market(object):
 
     def start_listing_republisher(self):
         # Periodically refresh buckets
-        loop = ioloop.IOLoop.instance()
         refresh_cb = ioloop.PeriodicCallback(self.dht._refresh_node,
                                              constants.REFRESH_TIMEOUT,
-                                             io_loop=loop)
+                                             io_loop=self.loop)
         refresh_cb.start()
 
     def disable_welcome_screen(self):
