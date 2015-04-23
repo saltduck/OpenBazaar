@@ -94,7 +94,7 @@ class DHT(object):
         # activePeers
 
         for peer in self.active_peers:
-            self.log.debug('Peer: %s', peer)
+
             if peer.guid == guid:
 
                 # Check if hostname/port combo changed
