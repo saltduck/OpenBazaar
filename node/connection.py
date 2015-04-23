@@ -108,10 +108,10 @@ class PeerConnection(GUIDMixin, object):
                 self.reachable = True
                 self.send_ping()
             else:
-                self.send_ping()
+                self.ping_task.stop()
                 self.reachable = False
-                if self.guid:
-                    self.log.error('Peer not responding. Removing.')
+                # if self.guid:
+                    # self.log.error('Peer not responding. Removing.')
                     # TODO: Remove peers who are malicious/unresponsive
                     # self.transport.dht.remove_peer(self.guid)
 
