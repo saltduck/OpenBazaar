@@ -14,11 +14,12 @@ import bitcoin
 from sqlite3.dbapi2 import OperationalError, DatabaseError
 from tornado import ioloop
 from tornado.ioloop import PeriodicCallback
+
 from node import connection, network_util, trust
+from node.constants import MSG_PING_ID, MSG_PONG_ID, VERSION
 from node.dht import DHT
 from rudp.packet import Packet
 from node.crypto_util import Cryptor
-from node import constants
 import string
 
 
@@ -114,8 +115,8 @@ class CryptoTransportLayer(TransportLayer):
             'mediate',
             'register',
             'punch',
-            'ping',
-            'pong',
+            MSG_PING_ID,
+            MSG_PONG_ID,
             'get_nat_type',
             'nat_type',
             'relay_msg'
@@ -148,7 +149,7 @@ class CryptoTransportLayer(TransportLayer):
                     'data': data.encode('hex'),
                     'guid': guid,
                     'senderGUID': self.guid,
-                    'v': constants.VERSION
+                    'v': VERSION
                 }), relay=True)
 
     def start_mediation(self, guid):
@@ -166,11 +167,11 @@ class CryptoTransportLayer(TransportLayer):
                         'guid': self.guid,
                         'guid2': guid,
                         'senderGUID': self.guid,
-                        'v': constants.VERSION
+                        'v': VERSION
                     }))
 
                     # def heartbeat():
-                    #     peer.sock.sendto('heartbeat', (peer.hostname, peer.port))
+                    #     peer.sock.sendto('MSG_HEARTBEAT_ID', (peer.hostname, peer.port))
 
                     # Heartbeat to relay server
                     # PeriodicCallback(heartbeat, 5000, self.loop).start()
@@ -182,7 +183,7 @@ class CryptoTransportLayer(TransportLayer):
                 peer.send({
                     'type': 'get_nat_type',
                     'peer_guid': guid,
-                    'v': constants.VERSION
+                    'v': VERSION
                 })
 
     def update_avatar(self, guid, avatar_url):
@@ -339,7 +340,7 @@ class CryptoTransportLayer(TransportLayer):
             'senderGUID': self.guid,
             'pubkey': self.pubkey,
             'senderNick': self.nickname,
-            'v': constants.VERSION
+            'v': VERSION
         })
         self.listener.listen()
 
@@ -462,7 +463,7 @@ class CryptoTransportLayer(TransportLayer):
                     'pubkey': peer2.pub,
                     'senderGUID': peer2.guid,
                     'senderNick': peer2.nickname,
-                    'v': constants.VERSION
+                    'v': VERSION
                 }))
 
                 peer2.send_raw(json.dumps({
@@ -473,7 +474,7 @@ class CryptoTransportLayer(TransportLayer):
                     'pubkey': peer1.pub,
                     'senderGUID': peer1.guid,
                     'senderNick': peer1.nickname,
-                    'v': constants.VERSION
+                    'v': VERSION
                 }))
                 return
             else:
@@ -491,7 +492,7 @@ class CryptoTransportLayer(TransportLayer):
             peer.send_raw(json.dumps({
                 'type': 'relayed_msg',
                 'data': msg['data'],
-                'v': constants.VERSION
+                'v': VERSION
             }), relay=True)
         else:
             self.log.debug('Could not find peer to relay to.')
@@ -507,7 +508,7 @@ class CryptoTransportLayer(TransportLayer):
             peer.send_raw(json.dumps({
                 'type': 'relayed_msg',
                 'data': msg['data'],
-                'v': constants.VERSION
+                'v': VERSION
             }), relay=True)
         else:
             self.log.debug('Could not find peer to relay to.')
@@ -585,7 +586,7 @@ class CryptoTransportLayer(TransportLayer):
                 'senderNICK': self.nickname,
                 'nat_type': peer.nat_type,
                 'peer_guid': peer.guid,
-                'v': constants.VERSION
+                'v': VERSION
             }
             requester.send_raw(json.dumps(nat_type_msg))
         else:
@@ -623,14 +624,14 @@ class CryptoTransportLayer(TransportLayer):
 
         if peer:
             pong_msg = {
-                'type': 'pong',
+                'type': MSG_PONG_ID,
                 'senderGUID': self.guid,
                 'hostname': self.hostname,
                 'port': self.port,
                 'senderNICK': self.nickname,
                 'avatar_url': self.avatar_url,
                 'nat_type': self.nat_type,
-                'v': constants.VERSION
+                'v': VERSION
             }
             peer.send_raw(json.dumps(pong_msg))
         else:
@@ -678,7 +679,7 @@ class CryptoTransportLayer(TransportLayer):
         #             'nat_type': self.nat_type,
         #             'port': self.port,
         #             'senderNick': self.nickname,
-        #             'v': node.constants.VERSION
+        #             'v': VERSION
         #         })
         #     )
 
