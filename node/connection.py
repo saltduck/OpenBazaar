@@ -5,10 +5,11 @@ from pyee import EventEmitter
 from threading import Thread
 from node.constants import VERSION, MSG_PING_ID, PEERCONNECTION_NO_RESPONSE_DELAY_IN_SECONDS, \
     PEERCONNECTION_PINGER_TIMEOUT_IN_SECONDS, PEERCONNECTION_PING_TASK_INTERVAL_IN_MS, \
-    PEERCONNECTION_SENDING_OUT_DELAY_IN_SECONDS, PEERLISTENER_RECV_FROM_BUFFER_SIZE, MSG_PING_ID_SIZE, MSG_PONG_ID_SIZE, \
-    MSG_PONG_ID, MSG_SEND_RELAY_PING_ID_SIZE, MSG_SEND_RELAY_PING_ID, MSG_RELAY_PING_ID_SIZE, MSG_RELAY_PING_ID, \
-    MSG_SEND_RELAY_PONG_ID_SIZE, MSG_SEND_RELAY_PONG_ID, MSG_HEARTBEAT_ID_SIZE, MSG_HEARTBEAT_ID, MSG_RELAYTO_ID_SIZE, \
-    MSG_RELAYTO_ID, MSG_RELAY_ID_SIZE, MSG_RELAY_ID
+    PEERCONNECTION_SENDING_OUT_DELAY_IN_SECONDS, PEERLISTENER_RECV_FROM_BUFFER_SIZE, \
+    MSG_PING_ID_SIZE, MSG_PONG_ID_SIZE, MSG_PONG_ID, MSG_SEND_RELAY_PING_ID_SIZE, MSG_SEND_RELAY_PING_ID, \
+    MSG_RELAY_PING_ID_SIZE, MSG_RELAY_PING_ID, \
+    MSG_SEND_RELAY_PONG_ID_SIZE, MSG_SEND_RELAY_PONG_ID, MSG_HEARTBEAT_ID_SIZE, MSG_HEARTBEAT_ID, \
+    MSG_RELAYTO_ID_SIZE, MSG_RELAYTO_ID, MSG_RELAY_ID_SIZE, MSG_RELAY_ID
 from node.network_util import count_incoming_packet, count_outgoing_packet
 import sys
 import time
@@ -474,7 +475,7 @@ class CryptoPeerListener(PeerListener):
         :param message: serialized JSON
         :return: True if proper handshake message
         """
-        if type(message) is 'dict':
+        if isinstance(message, dict):
             return message.get('type')
 
         try:
@@ -514,7 +515,7 @@ class CryptoPeerListener(PeerListener):
             self.log.debugv('Callbacks not ready yet')
 
     def process_encrypted_message(self, encrypted_message):
-        if type(encrypted_message) is dict:
+        if isinstance(encrypted_message, dict):
             message = encrypted_message
         else:
             try:
