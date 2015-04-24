@@ -78,7 +78,7 @@ class CryptoTransportLayer(TransportLayer):
     def __init__(self, ob_ctx, db_connection):
 
         self.ob_ctx = ob_ctx
-
+        self.loop = ioloop.IOLoop.current()
         self.log = logging.getLogger(
             '[%s] %s' % (ob_ctx.market_id, self.__class__.__name__)
         )
@@ -128,10 +128,11 @@ class CryptoTransportLayer(TransportLayer):
         TransportLayer.__init__(self, ob_ctx, self.guid, self.nickname, self.avatar_url)
         self.start_listener()
 
+        self.ip_checker_caller = None
         if ob_ctx.enable_ip_checker and not ob_ctx.seed_mode and not ob_ctx.dev_mode:
             self.start_ip_address_checker()
 
-        # ioloop.IOLoop.instance().call_later(5, self.truncate_dead_peers)
+        # self.loop.call_later(5, self.truncate_dead_peers)
 
     def truncate_dead_peers(self):
         for peer in self.dht.active_peers:
@@ -173,7 +174,7 @@ class CryptoTransportLayer(TransportLayer):
                     #     peer.sock.sendto('MSG_HEARTBEAT_ID', (peer.hostname, peer.port))
 
                     # Heartbeat to relay server
-                    # PeriodicCallback(heartbeat, 5000, ioloop.IOLoop.instance()).start()
+                    # PeriodicCallback(heartbeat, 5000, self.loop).start()
 
     def get_nat_type(self, guid):
         self.log.debug('Requesting nat type for user: %s', guid)
@@ -347,8 +348,8 @@ class CryptoTransportLayer(TransportLayer):
     def start_ip_address_checker(self):
         '''Checks for possible public IP change'''
         if self.ob_ctx.enable_ip_checker:
-            self.caller = PeriodicCallback(self._ip_updater_periodic_callback, 5000, ioloop.IOLoop.instance())
-            self.caller.start()
+            self.ip_checker_caller = PeriodicCallback(self._ip_updater_periodic_callback, 5000, self.loop)
+            self.ip_checker_caller.start()
             self.log.info("IP_CHECKER_ENABLED: Periodic IP Address Checker started.")
 
     def _ip_updater_periodic_callback(self):
@@ -477,7 +478,7 @@ class CryptoTransportLayer(TransportLayer):
                 }))
                 return
             else:
-                ioloop.IOLoop.instance().call_later(5, send_punches)
+                self.loop.call_later(5, send_punches)
         send_punches()
 
     def validate_on_relay_msg(self, msg):
@@ -530,7 +531,7 @@ class CryptoTransportLayer(TransportLayer):
                 self.log.debug('Sending punch to %s:%d', peer.hostname, peer.port)
                 self.log.debug("UDP punching package %d sent", count)
                 if peer.punching:
-                    ioloop.IOLoop.instance().call_later(0.5, send, count + 1)
+                    self.loop.call_later(0.5, send, count + 1)
                 if count >= 25:
                     if not peer.reachable:
                         self.log.debug('Falling back to relaying.')
@@ -857,7 +858,7 @@ class CryptoTransportLayer(TransportLayer):
             peer_obj.seed = True
             peer_obj.reachable = True  # Seeds should be reachable always
 
-        ioloop.IOLoop.instance().call_later(30, self.search_for_my_node)
+        self.loop.call_later(30, self.search_for_my_node)
 
         if callback is not None:
             callback('Joined')
