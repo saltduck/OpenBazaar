@@ -26,6 +26,8 @@ class PeerConnection(GUIDMixin, object):
 
         self.transport = transport
 
+        self.loop = ioloop.IOLoop.current()
+
         self.log = logging.getLogger(
             '[%s] %s' % (self.transport.market_id, self.__class__.__name__)
         )
@@ -95,7 +97,7 @@ class PeerConnection(GUIDMixin, object):
 
                 self.pinging = False
 
-            ioloop.IOLoop.instance().call_later(2, no_response)
+            self.loop.call_later(10, no_response)
 
         self.seed = False
         self.punching = False
@@ -108,10 +110,10 @@ class PeerConnection(GUIDMixin, object):
                 self.reachable = True
                 self.send_ping()
             else:
-                self.send_ping()
+                self.ping_task.stop()
                 self.reachable = False
-                if self.guid:
-                    self.log.error('Peer not responding. Removing.')
+                # if self.guid:
+                    # self.log.error('Peer not responding. Removing.')
                     # TODO: Remove peers who are malicious/unresponsive
                     # self.transport.dht.remove_peer(self.guid)
 
@@ -121,7 +123,7 @@ class PeerConnection(GUIDMixin, object):
 
                     # yappi.get_thread_stats().print_all()
 
-        self.ping_task = ioloop.PeriodicCallback(pinger, 5000, io_loop=ioloop.IOLoop.instance())
+        self.ping_task = ioloop.PeriodicCallback(pinger, 5000, io_loop=self.loop)
         self.ping_task.start()
 
     def setup_emitters(self):
@@ -223,7 +225,7 @@ class PeerConnection(GUIDMixin, object):
                         self.send_to_rudp(serialized)
                         return
 
-            ioloop.IOLoop.instance().call_later(5, sending_out)
+            self.loop.call_later(5, sending_out)
 
         sending_out()
 

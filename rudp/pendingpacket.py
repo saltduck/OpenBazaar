@@ -6,7 +6,7 @@ from tornado import ioloop
 class PendingPacket(object):
 
     def __init__(self, packet, packet_sender):
-
+        self.loop = ioloop.IOLoop.current()
         self.ee = EventEmitter()
 
         self._packet_sender = packet_sender
@@ -36,7 +36,7 @@ class PendingPacket(object):
                 self._packet_sender.send(self._packet)
                 packet_send(counter+1)
             else:
-                ioloop.IOLoop.instance().call_later(5, packet_lost)
+                self.loop.call_later(5, packet_lost)
 
         packet_send(0)
 

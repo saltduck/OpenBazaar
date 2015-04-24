@@ -314,7 +314,7 @@ class MarketApplication(tornado.web.Application):
             )
 
         self.cleanup_upnp_port_mapping()
-        tornado.ioloop.IOLoop.instance().stop()
+        self.loop.stop()
 
         self.transport.shutdown()
         self.shutdown_mutex.release()
