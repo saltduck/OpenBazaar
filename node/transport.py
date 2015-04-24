@@ -14,8 +14,9 @@ import bitcoin
 from sqlite3.dbapi2 import OperationalError, DatabaseError
 from tornado import ioloop
 from tornado.ioloop import PeriodicCallback
-from node.constants import *
+
 from node import connection, network_util, trust
+from node.constants import MSG_PING_ID, MSG_PONG_ID, VERSION
 from node.dht import DHT
 from rudp.packet import Packet
 from node.crypto_util import Cryptor

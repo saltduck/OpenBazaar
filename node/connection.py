@@ -3,6 +3,12 @@ import logging
 from pprint import pformat
 from pyee import EventEmitter
 from threading import Thread
+from node.constants import VERSION, MSG_PING_ID, PEERCONNECTION_NO_RESPONSE_DELAY_IN_SECONDS, \
+    PEERCONNECTION_PINGER_TIMEOUT_IN_SECONDS, PEERCONNECTION_PING_TASK_INTERVAL_IN_MS, \
+    PEERCONNECTION_SENDING_OUT_DELAY_IN_SECONDS, PEERLISTENER_RECV_FROM_BUFFER_SIZE, MSG_PING_ID_SIZE, MSG_PONG_ID_SIZE, \
+    MSG_PONG_ID, MSG_SEND_RELAY_PING_ID_SIZE, MSG_SEND_RELAY_PING_ID, MSG_RELAY_PING_ID_SIZE, MSG_RELAY_PING_ID, \
+    MSG_SEND_RELAY_PONG_ID_SIZE, MSG_SEND_RELAY_PONG_ID, MSG_HEARTBEAT_ID_SIZE, MSG_HEARTBEAT_ID, MSG_RELAYTO_ID_SIZE, \
+    MSG_RELAYTO_ID, MSG_RELAY_ID_SIZE, MSG_RELAY_ID
 from node.network_util import count_incoming_packet, count_outgoing_packet
 import sys
 import time
@@ -10,7 +16,6 @@ import time
 import obelisk
 import socket
 
-from node.constants import *
 from node import network_util
 from node.crypto_util import Cryptor
 from node.guid import GUIDMixin
