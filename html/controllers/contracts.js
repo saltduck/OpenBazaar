@@ -36,8 +36,9 @@ angular.module('app')
 
             $scope.parse_btc_ticker = function(msg) {
                 var data = JSON.parse(msg.data);
-                console.log('BTC Ticker', data.USD);
+                console.log('BTC Ticker', data);
                 $scope.last_price_usd = data.USD.last;
+                $scope.last_price_eur = data.EUR.last;
             };
 
             $scope.undoRemoveContract = function(contract_id) {
@@ -181,6 +182,7 @@ angular.module('app')
                     $scope.contract.remoteImages = [];
                     $scope.edit = false;
                     $scope.last_price_usd = scope.$parent.last_price_usd;
+                    $scope.last_price_eur = scope.$parent.last_price_eur;
                 }
 
                 console.log($scope.contract);
