@@ -169,6 +169,7 @@ angular.module('app')
                     $scope.contract.productDescription = contract.item_desc;
                     $scope.contract.productImage = contract.item_images;
                     $scope.contract.remoteImages = contract.item_remote_images;
+                    $scope.contract.productKeywords = contract.item_keywords;
                     $scope.edit = true;
 
                 } else {
