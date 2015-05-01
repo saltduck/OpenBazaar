@@ -102,45 +102,48 @@
                         <li role="presentation"><a data-target="keywords" aria-controls="profile" role="tab" data-toggle="tab" href="#" onclick="$('#product-keywords').show();$('#product-keywords').siblings().hide();return false;">Keywords</a></li>
                       </ul>
 
-                      <!-- Tab panes -->
-                      <div class="tab-content">
+                    <!-- Tab panes -->
+                    <div class="tab-content">
                         <div role="tabpanel" class="product-tab-pane tab-pane active" id="product-photos">
 
                             <div style="padding:10px;">
                                 <div class="form-group">
                                     <label for="inputImageURL1">Image URL 1</label>
                                     <input type="text" class="form-control" ng-model="contract.remoteImages[0]" id="inputImageURL1" name="inputImageURL1"/>
+                                    <p></p>
+                                    <img class="img-thumbnail" data-ng-if="contract.remoteImages[0]" ng-src="{{contract.remoteImages[0]}}" />
+                                    <p></p>
                                 </div>
 
                                 <div class="form-group">
                                     <label for="inputImageURL2">Image URL 2</label>
                                     <input type="text" class="form-control" ng-model="contract.remoteImages[1]" id="inputImageURL2" name="inputImageURL2"/>
+                                    <p></p>
+                                    <img class="img-thumbnail" data-ng-if="contract.remoteImages[1]" ng-src="{{contract.remoteImages[1]}}" />
+                                    <p></p>
                                 </div>
                                 <div class="form-group">
                                     <label for="inputImageURL3">Image URL 3</label>
                                     <input type="text" class="form-control" ng-model="contract.remoteImages[2]" id="inputImageURL3" name="inputImageURL3"/>
+                                    <p></p>
+                                    <img class="img-thumbnail" data-ng-if="contract.remoteImages[2]" ng-src="{{contract.remoteImages[2]}}" />
+                                    <p></p>
                                 </div>
                             </div>
-
-                        </div>
-                        <div role="tabpanel" class="product-tab-pane tab-pane" id="product-keywords">
-
-                        <div style="padding:10px;">
-                        <div class="form-group">
-                            <div class="alert alert-info" style="margin-bottom:5px;">Keywords make your listings discoverable on the network.</div>
-                            <label for="inputProductKeywords">Keywords</label>
-                            <input type="text" class="form-control" ng-model="contract.productKeywords" id="inputProductKeywords" name="inputProductKeywords" placeholder="Comma separated keywords that describe the item. Used for searching."/>
-                        </div>
+                            
                             </div>
-
+                            <div role="tabpanel" class="product-tab-pane tab-pane" id="product-keywords">
+                                <div style="padding:10px;">
+                                    <div class="form-group">
+                                        <div class="alert alert-info" style="margin-bottom:5px;">Keywords make your listings discoverable on the network.</div>
+                                        <label for="inputProductKeywords">Keywords</label>
+                                        <input type="text" class="form-control" ng-model="contract.productKeywords" id="inputProductKeywords" name="inputProductKeywords" placeholder="Comma separated keywords that describe the item. Used for searching."/>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                      </div>
-
                     </div>
-
-
-</div>
-
+    </div>
 
 
 
@@ -170,5 +173,3 @@
     <!--<button class="btn btn-primary" ng-click="saveProduct()">Save</button>-->
     <button class="btn btn-primary {{!newContractForm.$valid ? 'disabled': ''}}" data-ng-click="saveContract()">Save</button>
 </div>
-
-
