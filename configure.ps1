@@ -19,8 +19,6 @@ $python = "$pythonDir\python.exe"
 $pip = "$pythonDir\Scripts\pip.exe"
 $gpg = "$gnupgDir\pub\gpg.exe"
 $libeay = "$openSSLDir\bin\libeay32.dll"
-# TODO: remove this
-$sqlite = "$packagesDir\pysqlcipher\_sqlite.pyd"
 $miniupnpc = "$packagesDir\miniupnpc.pyd"
 
 $pythonUrl = "https://www.python.org/ftp/python/2.7.8/python-2.7.8.msi"
@@ -112,7 +110,6 @@ Function Configure
 
     Start-Process $pip -Wait  -NoNewWindow "install http://sourceforge.net/projects/py2exe/files/latest/download?source=files"
     Start-Process $pip -Wait  -NoNewWindow "install py2exe2msi"
-    Start-Process $pip -Wait  -NoNewWindow "install https://github.com/yagoulas/pysqlcipher/zipball/msvc-build"
     Start-Process $pip -Wait  -NoNewWindow "install https://github.com/yagoulas/miniupnp/zipball/msvc_miniupnpc"
     Start-Process $pip -Wait  -NoNewWindow "install -r requirements.txt"
 }
