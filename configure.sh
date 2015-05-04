@@ -57,22 +57,23 @@ function brewUpgrade {
 }
 
 function installMac {
+  ORIGINAL_CPPFLAGS=$CPPFLAGS
+  ORIGINAL_CXXFLAGS=$CXXFLAGS
+  ORIGINAL_DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH
+  unset CPPFLAGS
+  unset CXXFLAGS
+  unset DYLD_LIBRARY_PATH
+
   # Install brew if it is not installed, otherwise upgrade it.
   if ! command_exists brew ; then
     echo "Installing brew..."
     ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
   else
     echo "Updating, Upgrading and checking brew installation..."
-    ORIGINAL_CPPFLAGS=$CPPFLAGS
-    ORIGINAL_DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH
-    unset CPPFLAGS
-    unset DYLD_LIBRARY_PATH
     brew update
     brewDoctor
     brewUpgrade
     brew prune
-    export CPPFLAGS=$ORIGINAL_CPPFLAGS
-    export DYLD_LIBRARY_PATH=$ORIGINAL_DYLD_LIBRARY_PATH
   fi
 
   # Use brew's python 2.7, even if user has a system python.
@@ -109,6 +110,11 @@ function installMac {
 
   # Install python deps inside our virtualenv
   ./env/bin/pip install -r requirements.txt
+
+  # restore any previous build flags
+  export CPPFLAGS=$ORIGINAL_CPPFLAGS
+  export CXXFLAGS=$ORIGINAL_CXXFLAGS
+  export DYLD_LIBRARY_PATH=$ORIGINAL_DYLD_LIBRARY_PATH
 }
 
 function doneMessage {
