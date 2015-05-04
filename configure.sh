@@ -318,7 +318,7 @@ elif [[ $OSTYPE == linux-gnu || $OSTYPE == linux-gnueabihf ]]; then
     echo "Found distribution Raspberry Pi Raspbian"
     installRaspbian "$@"
   else
-    echo "Found distribution Ubuntu"
+    echo "Found distribution Ubuntu or other"
     installUbuntu
   fi
   doneMessage
