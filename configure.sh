@@ -113,7 +113,7 @@ function installMac {
 
 function sudoMessage {
   echo
-  echo "In order to install OpenBazaar, this script will install the follwing requirements in your system:"
+  echo "In order to install OpenBazaar, this script will install the following requirements in your system:"
   echo "  $*"
   echo "Note: this script requires sudo for the installation."
   echo
