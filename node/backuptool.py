@@ -5,7 +5,6 @@ import json
 
 
 class BackupTool(object):
-    # pylint: disable=abstract-class-not-used
     """Simple backup utility."""
 
     def __init__(self):
