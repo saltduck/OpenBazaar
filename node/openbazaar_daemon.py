@@ -370,6 +370,7 @@ def attempt_browser_open(ob_ctx):
 def setup_signal_handlers(application):
     try:
         signal.signal(signal.SIGTERM, application.shutdown)
+        signal.signal(signal.SIGINT, application.shutdown)
     except ValueError:
         pass
 
