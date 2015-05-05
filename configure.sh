@@ -15,6 +15,16 @@
 #
 #
 
+UBUNTU_PACKAGES="python-pip build-essential rng-tools python-dev libjpeg-dev sqlite3 openssl alien libssl-dev python-virtualenv lintian libjs-jquery"
+ARCH_PACKAGES="python2 python2-pip python2-virtualenv rng-tools libjpeg sqlite3 openssl"
+RASPIARCH_PACKAGES="base-devel curl wget python2 python2-pip rng-tools libjpeg sqlite3 openssl libunistring"
+RASPBIAN_PACKAGES="python-pip build-essential rng-tools alien openssl libssl-dev python-dev libjpeg-dev sqlite3"
+PORTAGE_PACKAGES="dev-lang/python:2.7 dev-python/pip rng-tools gcc jpeg sqlite3 openssl dev-python/virtualenv"
+FEDORA_PACKAGES="kernel-devel rng-tools openssl openssl-libs openssl-devel openjpeg openjpeg-devel make alien python2 python-pip python-virtualenv python-devel python-zmq zeromq3 zeromq3-devel pyOpenSSL"
+SLACK_PACKAGES="python pysetuptools pip virtualenv rng-tools libjpeg sqlite openssl" # if you change this, check the installSlack function carefully
+
+
+
 # exit on error
 set -e
 
@@ -154,13 +164,10 @@ function confirm {
 }
 
 function installUbuntu {
-  packages="python-pip build-essential rng-tools \
-            python-dev libjpeg-dev sqlite3 openssl \
-            alien libssl-dev python-virtualenv lintian libjs-jquery"
-  sudoMessage $packages
+  sudoMessage ${UBUNTU_PACKAGES}
 
   sudo apt-get --quiet update || echo 'apt-get update failed. Continuing...'
-  sudo apt-get --assume-yes install $packages
+  sudo apt-get --assume-yes install ${UBUNTU_PACKAGES}
 
   make_env
 
@@ -168,8 +175,7 @@ function installUbuntu {
 }
 
 function installArch {
-  packages="python2 python2-pip python2-virtualenv rng-tools libjpeg sqlite3 openssl"
-  sudoMessage $packages
+  sudoMessage ${ARCH_PACKAGES}
 
   echo "Some packages and dependencies may fail to install if your package list is out of date."
   echo "Would you like to upgrade your system now? "
@@ -180,7 +186,7 @@ function installArch {
   fi
   # sudo pacman --sync --needed base-devel
   # Can conflict with multilib packages. Uncomment previous line if you don't already have base-devel installed
-  sudo pacman --sync --needed $packages
+  sudo pacman --sync --needed ${ARCH_PACKAGES}
 
   make_env
 
@@ -188,12 +194,11 @@ function installArch {
 }
 
 function installRaspiArch {
-  packages="base-devel curl wget python2 python2-pip rng-tools libjpeg sqlite3 openssl libunistring"
-  sudoMessage $packages
+  sudoMessage ${RASPIARCH_PACKAGES}
 
   # pacman --sync sudo
   sudo pacman --sync --refresh
-  sudo pacman --sync --needed $packages
+  sudo pacman --sync --needed ${RASPIARCH_PACKAGES}
   echo " "
   echo "Notice : pip install requires 10~30 minutes to complete."
   if confirm ; then
@@ -207,11 +212,9 @@ function installRaspiArch {
 }
 
 function installRaspbian {
-  packages="python-pip build-essential rng-tools alien \
-            openssl libssl-dev python-dev libjpeg-dev sqlite3"
-  sudoMessage $packages
+  sudoMessage ${RASPBIAN_PACKAGES}
 
-  sudo apt-get --assume-yes install $packages
+  sudo apt-get --assume-yes install ${RASPBIAN_PACKAGES}
   echo " "
   echo "Notice : pip install requires 2~3 hours to complete."
   if confirm ; then
@@ -225,10 +228,9 @@ function installRaspbian {
 }
 
 function installPortage {
-  packages="dev-lang/python:2.7 dev-python/pip rng-tools gcc jpeg sqlite3 openssl dev-python/virtualenv"
-  sudoMessage $packages
+  sudoMessage ${PORTAGE_PACKAGES}
 
-  sudo emerge --noreplace $packages
+  sudo emerge --noreplace ${PORTAGE_PACKAGES}
 
   make_env
 
@@ -236,12 +238,9 @@ function installPortage {
 }
 
 function installFedora {
-  packages="kernel-devel rng-tools openssl openssl-libs openssl-devel \
-            openjpeg openjpeg-devel make alien python2 python-pip \
-            python-virtualenv python-devel python-zmq zeromq3 zeromq3-devel pyOpenSSL"
-  sudoMessage $packages bitcoin-release openssl-compat-bitcoin-libs
+  sudoMessage ${FEDORA_PACKAGES} bitcoin-release openssl-compat-bitcoin-libs
 
-  sudo yum --assumeyes install $packages
+  sudo yum --assumeyes install ${FEDORA_PACKAGES}
   rpm --query bitcoin-release || sudo yum --assumeyes install http://linux.ringingliberty.com/bitcoin/f20/x86_64/bitcoin-release-1-6.noarch.rpm
   sudo yum --assumeyes install openssl-compat-bitcoin-libs
 
@@ -251,7 +250,7 @@ function installFedora {
 }
 
 function installSlack {
-  sudoMessage python pysetuptools pip virtualenv rng-tools libjpeg sqlite openssl
+  sudoMessage ${SLACK_PACKAGES}
 
   sudo /usr/sbin/slackpkg update
   if ! command_exists python; then
