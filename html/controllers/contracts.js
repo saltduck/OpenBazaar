@@ -181,6 +181,7 @@ angular.module('app')
                     $scope.contract.productPrice = 0.5;
                     $scope.contract.productShippingPrice = 0;
                     $scope.contract.remoteImages = [];
+                    $scope.contract.productKeywords = [];
                     $scope.edit = false;
                     $scope.last_price_usd = scope.$parent.last_price_usd;
                     $scope.last_price_eur = scope.$parent.last_price_eur;
