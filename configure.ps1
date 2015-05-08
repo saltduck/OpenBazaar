@@ -90,7 +90,7 @@ Function Configure
     if((Test-Path $gpg) -eq 0)
     {
         DownloadFile "Downloading pgp4win installer..." $gpgSetup $gpgUrl
-        echo "Installing gpg4win 2.2.2"
+        echo "Installing gpg4win 2.2.4"
         $gpg4win_config | Out-File "$setupsDir\gpgInstall.ini"
         Start-Process $gpgSetup -Wait "/S /C=$configFile /D=$gnupgDir"
     }
