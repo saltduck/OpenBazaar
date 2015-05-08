@@ -236,7 +236,7 @@ angular.module('app')
                             }
                         };
 
-                        var keywords = ($scope.contract.productKeywords) ? $scope.contract.productKeywords.split(',') : [];
+                        var keywords = ($scope.contract.productKeywords[0]) ? $scope.contract.productKeywords.split(',') : [];
                         $.each(keywords, function(i, el) {
                             if ($.inArray(el.trim(), contract.Contract.item_keywords) === -1 && el.trim() !== '') {
                                 contract.Contract.item_keywords.push(el.trim());
