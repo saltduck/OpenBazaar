@@ -90,3 +90,5 @@ MSG_SEND_RELAY_PONG_ID = 'send_relay_pong'
 MSG_HEARTBEAT_ID = 'heartbeat'
 MSG_RELAYTO_ID = 'relayto'
 MSG_RELAY_ID = 'relay '  # Trailing space is intentional.
+
+CLOSE_NODE_TIMELIMIT_IN_SECONDS = 5*60

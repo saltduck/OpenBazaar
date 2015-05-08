@@ -242,20 +242,26 @@ class DHT(object):
         contacts = self.routing_table.find_close_nodes(key, constants.K, guid)
         contact_list = []
         for contact in contacts:
-            self.log.debug('Contact: %s', contact)
-            contact.avatar_url = contact.avatar_url if contact.avatar_url else None
 
-            contact_list.append((
-                contact.guid,
-                contact.hostname,
-                contact.port,
-                contact.pub,
-                contact.nickname,
-                contact.nat_type,
-                contact.avatar_url
-            ))
+            stale_contact_time = time.time() - constants.CLOSE_NODE_TIMELIMIT_IN_SECONDS
 
-        return self.dedupe(contact_list)
+            if contact.last_reached > stale_contact_time:
+
+                contact.avatar_url = contact.avatar_url if contact.avatar_url else None
+
+                contact_list.append((
+                    contact.guid,
+                    contact.hostname,
+                    contact.port,
+                    contact.pub,
+                    contact.nickname,
+                    contact.nat_type,
+                    contact.avatar_url
+                ))
+
+        close_nodes = self.dedupe(contact_list)
+
+        return close_nodes
 
     @_synchronized
     def on_find_node_response(self, msg):
