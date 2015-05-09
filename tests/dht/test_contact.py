@@ -1,6 +1,6 @@
 import unittest
 
-from dht import contact
+from dht import constants, contact
 
 
 class TestContact(unittest.TestCase):
@@ -9,8 +9,8 @@ class TestContact(unittest.TestCase):
     """
     @classmethod
     def setUpClass(cls):
-        cls.guid1 = '1' * 40
-        cls.guid2 = 'f' * 40
+        cls.guid1 = '1' * constants.HEX_NODE_ID_LEN
+        cls.guid2 = 'f' * constants.HEX_NODE_ID_LEN
         cls.ipv4 = '123.45.67.89'
         cls.ipv6 = '2001:db8:85a3::8a2e:370:7334'
         cls.port1 = 12345
