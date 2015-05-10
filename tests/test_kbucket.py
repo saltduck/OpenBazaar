@@ -266,7 +266,7 @@ class TestKBucket(unittest.TestCase):
         except Exception:
             self.fail("Crashed while excluding contact absent from bucket.")
 
-    def test_remove_contact_existing_contact(self):
+    def test_remove_existing_contact(self):
         rm_contact = self._mk_contact_by_num(self.range_min)
         prev_count = len(self.bucket.get_contacts())
 
@@ -287,7 +287,7 @@ class TestKBucket(unittest.TestCase):
             )
         )
 
-    def test_remove_contact_existing_guid(self):
+    def test_remove_existing_guid(self):
         rm_guid = str(self.range_min)
         prev_count = len(self.bucket.get_contacts())
 

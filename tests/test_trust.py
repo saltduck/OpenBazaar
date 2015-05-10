@@ -8,7 +8,7 @@ class TestTrust(unittest.TestCase):
     def setUp(self):
         self.guid = 'a' * constants.HEX_NODE_ID_LEN
 
-    def test_burnaddr_from_guid_no_testnet(self):
+    def test_guid_burnaddr_no_testnet(self):
         trust.TESTNET = False
         burnaddr = trust.burnaddr_from_guid(self.guid)
         self.assertEqual('1GZQKjsC97yasxRj1wtYf5rC61AxtRdodJ', burnaddr)

@@ -6,7 +6,7 @@ def shout(data):
     return data
 
 
-def proto_page(uri, pubkey, guid, text, signature, nickname, PGPPubKey, email,
+def proto_page(uri, pubkey, guid, text, signature, nickname, pgp_pub_key, email,
                bitmessage, arbiter, notary, notary_description, notary_fee,
                arbiter_description, sin, homepage, avatar_url):
     data = {
@@ -16,7 +16,7 @@ def proto_page(uri, pubkey, guid, text, signature, nickname, PGPPubKey, email,
         'senderGUID': guid,
         'text': text,
         'nickname': nickname,
-        'PGPPubKey': PGPPubKey,
+        'PGPPubKey': pgp_pub_key,
         'email': email,
         'bitmessage': bitmessage,
         'arbiter': arbiter,
@@ -41,12 +41,12 @@ def query_page(guid):
     return data
 
 
-def proto_store(key, value, originalPublisherID, age):
+def proto_store(key, value, original_publisher_id, age):
     data = {
         'type': 'store',
         'key': key,
         'value': value,
-        'originalPublisherID': originalPublisherID,
+        'originalPublisherID': original_publisher_id,
         'age': age,
         'v': constants.VERSION
     }

@@ -4,7 +4,7 @@ import threading
 import math
 
 
-def splitArrayLike(data, length, message_id=None, data_size=None):
+def split_array_like(data, length, message_id=None, data_size=None):
     length = length or 1
     retval = []
 
@@ -25,9 +25,9 @@ def set_interval(func, sec=0, times=3):
         set_interval(func, sec, times-1)
         func()
     func()
-    t = threading.Timer(sec, func_wrapper)
-    t.start()
-    return t
+    timer = threading.Timer(sec, func_wrapper)
+    timer.start()
+    return timer
 
 
 def sort_by_sequence(packet_a, packet_b):

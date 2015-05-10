@@ -18,14 +18,14 @@ class TestNodeNetworkUtil(unittest.TestCase):
         self.assertItemsEqual(new_stun_servers, stun.stun_servers_list)
 
     @mock.patch.object(stun, 'get_ip_info')
-    def test_get_NAT_status(self, method_mock):
+    def test_get_nat_status(self, method_mock):
         stun_response = ('Symmetric NAT', '123.45.67.89', '12345')
         method_mock.return_value = stun_response
 
         keys = ('nat_type', 'external_ip', 'external_port')
         dict_response = {key: value for key, value in zip(keys, stun_response)}
 
-        self.assertEqual(dict_response, network_util.get_NAT_status())
+        self.assertEqual(dict_response, network_util.get_nat_status())
         method_mock.assert_called_once_with(source_port=0, stun_host=None, stun_port=19302)
 
     def test_is_loopback_addr(self):
@@ -45,7 +45,7 @@ class TestNodeNetworkUtil(unittest.TestCase):
         self.assertFalse(network_util.is_private_ip_address('8.8.8.8'))
 
     @mock.patch.object(requests, 'get')
-    def test_get_my_ip_from_default_site(self, mock_method):
+    def test_get_my_ip_from_dflt_site(self, mock_method):
         stub_ip = '123.45.67.89'
         response_mock = mock.NonCallableMock()
         response_mock.text = stub_ip
@@ -55,7 +55,7 @@ class TestNodeNetworkUtil(unittest.TestCase):
         mock_method.assert_called_once_with(network_util.IP_DETECT_SITE)
 
     @mock.patch.object(requests, 'get')
-    def test_get_my_ip_from_user_specified_site(self, mock_method):
+    def test_get_my_ip_from_othr_site(self, mock_method):
         stub_ip = '123.45.67.89'
         response_mock = mock.NonCallableMock()
         response_mock.text = stub_ip

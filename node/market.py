@@ -948,13 +948,13 @@ class Market(object):
     def on_peer(self, peer):
         pass
 
-    def release_funds_to_recipient(self, buyer_order_id, tx, script, signatures, guid, buyer_id, refund=0):
+    def release_funds_to_recipient(self, buyer_order_id, transaction, script, signatures, guid, buyer_id, refund=0):
         """Send TX to merchant"""
-        self.log.debug("Release funds to merchant: %s %s %s %s", buyer_order_id, tx, signatures, guid)
+        self.log.debug("Release funds to merchant: %s %s %s %s", buyer_order_id, transaction, signatures, guid)
         self.transport.send(
             {
                 'type': 'release_funds_tx',
-                'tx': tx,
+                'tx': transaction,
                 'script': script,
                 'buyer_order_id': buyer_order_id,
                 'signatures': signatures,

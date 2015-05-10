@@ -81,7 +81,7 @@ class TestCryptoPeerConnection(TestPeerConnection):
         cls.address = cls._mk_address(cls.protocol, cls.hostname, cls.port)
 
     @classmethod
-    def _mk_default_CPC(cls):
+    def _mk_default_cpc(cls):
         return connection.CryptoPeerConnection(
             cls.transport,
             cls.hostname,
@@ -90,7 +90,7 @@ class TestCryptoPeerConnection(TestPeerConnection):
         )
 
     @classmethod
-    def _mk_complete_CPC(cls):
+    def _mk_complete_cpc(cls):
         return connection.CryptoPeerConnection(
             cls.transport,
             cls.hostname,
@@ -103,8 +103,8 @@ class TestCryptoPeerConnection(TestPeerConnection):
         )
 
     def setUp(self):
-        self.pc1 = self._mk_default_CPC()
-        self.pc2 = self._mk_complete_CPC()
+        self.pc1 = self._mk_default_cpc()
+        self.pc2 = self._mk_complete_cpc()
 
     def test_subclassing(self):
         self.assertTrue(
@@ -133,7 +133,7 @@ class TestCryptoPeerConnection(TestPeerConnection):
         # self.assertEqual(self.pc2.sin, self.sin)
 
     def test_eq(self):
-        self.assertEqual(self.pc1, self._mk_default_CPC())
+        self.assertEqual(self.pc1, self._mk_default_cpc())
 
         other_addresses = (
             (self.hostname, self.port),
@@ -153,7 +153,7 @@ class TestCryptoPeerConnection(TestPeerConnection):
 
         self.assertNotEqual(self.pc1, None)
 
-        self.assertEqual(self.pc2, self._mk_complete_CPC())
+        self.assertEqual(self.pc2, self._mk_complete_cpc())
         self.assertEqual(self.pc2, self.guid)
 
         another_guid = "43"

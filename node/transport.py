@@ -61,16 +61,16 @@ class TransportLayer(object):
 
     def trigger_callbacks(self, section, *data):
         """Run all callbacks in specified section."""
-        for cb in self.callbacks[section]:
-            if cb['validator_cb'](*data):
-                cb['cb'](*data)
+        for callback in self.callbacks[section]:
+            if callback['validator_cb'](*data):
+                callback['cb'](*data)
 
         # Run all callbacks registered under the 'all' section. Don't duplicate
         # calls if the specified section was 'all'.
         if not section == 'all':
-            for cb in self.callbacks['all']:
-                if cb['validator_cb'](*data):
-                    cb['cb'](*data)
+            for callback in self.callbacks['all']:
+                if callback['validator_cb'](*data):
+                    callback['cb'](*data)
 
 
 class CryptoTransportLayer(TransportLayer):
@@ -212,26 +212,26 @@ class CryptoTransportLayer(TransportLayer):
         )
 
         # pylint: disable=unused-variable
-        @self.listener.ee.on('on_pong_message')
+        @self.listener.event_emitter.on('on_pong_message')
         def on_pong_message(msg):
             data, addr = msg[0], msg[1]
-            for x in self.dht.active_peers:
-                if x.hostname == addr[0] and x.port == addr[1]:
-                    x.reachable = True
-                    x.last_reached = time.time()
+            for active_peer in self.dht.active_peers:
+                if active_peer.hostname == addr[0] and active_peer.port == addr[1]:
+                    active_peer.reachable = True
+                    active_peer.last_reached = time.time()
 
         # pylint: disable=unused-variable
-        @self.listener.ee.on('on_relay_pong_message')
+        @self.listener.event_emitter.on('on_relay_pong_message')
         def on_relay_pong_message(msg):
             data, addr = msg[0], msg[1]
             data = data.split(' ')
-            for x in self.dht.active_peers:
-                if x.guid == data[1]:
-                    x.reachable = True
-                    x.last_reached = time.time()
+            for active_peer in self.dht.active_peers:
+                if active_peer.guid == data[1]:
+                    active_peer.reachable = True
+                    active_peer.last_reached = time.time()
 
         # pylint: disable=unused-variable
-        @self.listener.ee.on('on_send_relay_ping')
+        @self.listener.event_emitter.on('on_send_relay_ping')
         def on_send_relay_ping(msg):
             data, addr = msg[0], msg[1]
             data = data.split(' ')
@@ -242,7 +242,7 @@ class CryptoTransportLayer(TransportLayer):
                 self.log.info('Could not find peer to send relay_ping to.')
 
         # pylint: disable=unused-variable
-        @self.listener.ee.on('on_send_relay_pong')
+        @self.listener.event_emitter.on('on_send_relay_pong')
         def on_send_relay_pong(msg):
             data, addr = msg[0], msg[1]
             data = data.split(' ')
@@ -253,7 +253,7 @@ class CryptoTransportLayer(TransportLayer):
                 self.log.info('Could not find peer to send relay_pong to.')
 
         # pylint: disable=unused-variable
-        @self.listener.ee.on('on_relayto')
+        @self.listener.event_emitter.on('on_relayto')
         def on_relayto(data):
 
             data = data.split(' ', 4)
@@ -268,7 +268,7 @@ class CryptoTransportLayer(TransportLayer):
                     self.listener.socket.sendto('relay %s' % data[4], (data[2], int(data[3])))
 
         # pylint: disable=unused-variable
-        @self.listener.ee.on('on_message')
+        @self.listener.event_emitter.on('on_message')
         def on_message(msg):
 
             data, addr = msg[0], msg[1]
@@ -331,8 +331,8 @@ class CryptoTransportLayer(TransportLayer):
 
                 else:
                     self.log.debug('Did not find a peer')
-            except Exception as e:
-                self.log.error('Could not deserialize message: %s', e)
+            except Exception as exc:
+                self.log.error('Could not deserialize message: %s', exc)
 
 
         self.listener.set_ok_msg({
@@ -356,13 +356,11 @@ class CryptoTransportLayer(TransportLayer):
         if self.ob_ctx.enable_ip_checker:
             new_ip = network_util.get_my_ip()
 
-            self.ip = None
-
-            if not new_ip or new_ip == self.ip:
+            if not new_ip or new_ip == self.hostname:
                 return
 
             self.ob_ctx.server_ip = new_ip
-            self.ip = new_ip
+            self.hostname = new_ip
 
             if self.listener is not None:
                 self.listener.set_ip_address(new_ip)
@@ -442,13 +440,13 @@ class CryptoTransportLayer(TransportLayer):
             peer1, peer2 = None, None
 
             # Send both peers a message to message each other
-            for x in self.dht.active_peers:
-                if x.guid == msg['senderGUID']:
+            for active_peer in self.dht.active_peers:
+                if active_peer.guid == msg['senderGUID']:
                     self.log.debug('Found guid')
-                    peer1 = x
-                if x.guid == msg['guid2']:
+                    peer1 = active_peer
+                if active_peer.guid == msg['guid2']:
                     self.log.debug('Found guid2')
-                    peer2 = x
+                    peer2 = active_peer
                 if peer1 and peer2:
                     continue
 
@@ -599,16 +597,16 @@ class CryptoTransportLayer(TransportLayer):
     def on_nat_type(self, msg):
         self.log.debug('Received nat type for user: %s', msg['peer_guid'])
 
-        for x in self.dht.active_peers:
-            if x.guid == msg['peer_guid']:
-                x.nat_type = msg['nat_type']
-                if x.nat_type == 'Symmetric NAT':
-                    x.relaying = True
-                    x._rudp_connection._sender._packet_sender.relaying = True
+        for peer in self.dht.active_peers:
+            if peer.guid == msg['peer_guid']:
+                peer.nat_type = msg['nat_type']
+                if peer.nat_type == 'Symmetric NAT':
+                    peer.relaying = True
+                    peer._rudp_connection._sender._packet_sender.relaying = True
                     # self.init_packetsender()
                     # self.setup_emitters()
-                    x.reachable = True
-                self.log.debug(x)
+                    peer.reachable = True
+                self.log.debug(peer)
                 return
 
         self.log.error('No peer found for this GUID.')
@@ -699,18 +697,18 @@ class CryptoTransportLayer(TransportLayer):
     def on_store(self, msg):
         self.dht._on_store_value(msg)
 
-    def validate_on_findNode(self, msg):
+    def validate_on_findNode(self, msg): # pylint: disable=invalid-name
         self.log.debugv('Validating find node message.')
         return True
 
-    def on_findNode(self, msg):
+    def on_findNode(self, msg): # pylint: disable=invalid-name
         self.dht.on_find_node(msg)
 
-    def validate_on_findNodeResponse(self, msg):
+    def validate_on_findNodeResponse(self, msg): # pylint: disable=invalid-name
         self.log.debugv('Validating find node response message.')
         return True
 
-    def on_findNodeResponse(self, msg):  # pylint: disable=invalid-name
+    def on_findNodeResponse(self, msg): # pylint: disable=invalid-name
         self.dht.on_find_node_response(msg)
 
     def _setup_settings(self):
@@ -773,7 +771,7 @@ class CryptoTransportLayer(TransportLayer):
         if not self.settings.get('bitmessage'):
             # Generate Bitmessage address
             if self.bitmessage_api is not None:
-                self._generate_new_bitmessage_address()
+                self._generate_new_bitmessage_addr()
 
         # In case user wants to override with command line passed bitmessage values
         if self.ob_ctx.bm_user is not None and \
@@ -820,7 +818,7 @@ class CryptoTransportLayer(TransportLayer):
         self.db_connection.update_entries("settings", newsettings, {"market_id": self.market_id})
         self.settings.update(newsettings)
 
-    def _generate_new_bitmessage_address(self):
+    def _generate_new_bitmessage_addr(self):
         # Use the guid generated previously as the key
         self.bitmessage = self.bitmessage_api.createRandomAddress(
             self.guid.encode('base64'),
@@ -954,10 +952,10 @@ class CryptoTransportLayer(TransportLayer):
                     data['senderGUID'] = self.guid
                     data['pubkey'] = self.pubkey
 
-                    def cb(msg):
+                    def log_callback(msg):
                         self.log.debug('Message Back: \n%s', pformat(msg))
 
-                    routing_peer.send(data, cb)
+                    routing_peer.send(data, log_callback)
 
                 except Exception:
                     self.log.info("Error sending over peer!")

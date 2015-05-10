@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from sqlite3 import dbapi2
+from pysqlcipher import dbapi2 # pylint: disable=import-error
 
 from db.migrations import migrations_util
 from node import constants # pylint: disable=import-error
@@ -22,8 +22,8 @@ def upgrade(db_path):
                         "ADD COLUMN refund_address TEXT")
             print 'Upgraded'
             con.commit()
-        except dbapi2.Error as e:
-            print 'Exception: %s' % e
+        except dbapi2.Error as exc:
+            print 'Exception: %s' % exc
 
 
 def downgrade(db_path):

@@ -9,8 +9,8 @@ TEST_CONTENTS = "foo\n"
 class TestDataURI(unittest.TestCase):
 
     def setUp(self):
-        with open(TEST_TXT_FILE, 'w') as f:
-            f.write(TEST_CONTENTS)
+        with open(TEST_TXT_FILE, 'w') as textfile:
+            textfile.write(TEST_CONTENTS)
 
     def tearDown(self):
         os.remove(TEST_TXT_FILE)

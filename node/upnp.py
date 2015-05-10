@@ -18,7 +18,7 @@ class PortMapper(object):
     DEBUG = False  # boolean
     upnp = None  # miniupnpc.UPnP
     OPEN_BAZAAR_DESCRIPTION = 'OpenBazaar Server'
-    UPNP_DEVICE_AVAILABLE = False
+    upnp_device_available = False
 
     @staticmethod
     def debug(*s):
@@ -49,10 +49,10 @@ class PortMapper(object):
 
         try:
             self.upnp.selectigd()
-            self.UPNP_DEVICE_AVAILABLE = True
+            self.upnp_device_available = True
         except Exception as exc:
             print 'Exception :', exc
-            self.UPNP_DEVICE_AVAILABLE = False
+            self.upnp_device_available = False
             return
 
         # display information about the IGD and the internet connection
@@ -78,15 +78,15 @@ class PortMapper(object):
             pass
         return result
 
-    def add_port_mapping(self, externalPort, internalPort,
-                         protocol='TCP', ipToBind=None):
+    def add_port_mapping(self, external_port, internal_port,
+                         protocol='TCP', ip_to_bind=None):
         """
         Valid protocol values are: 'TCP', 'UDP'
-        Usually you'll pass externalPort and internalPort as the same number.
+        Usually you'll pass external_port and internal_port as the same number.
         """
         result = False
 
-        if self.UPNP_DEVICE_AVAILABLE:
+        if self.upnp_device_available:
             if protocol not in ('TCP', 'UDP'):
                 raise Exception(
                     'PortMapper.add_port_mapping() invalid protocol ' +
@@ -94,20 +94,20 @@ class PortMapper(object):
                     str(protocol)
                 )
 
-            if ipToBind is None:
-                ipToBind = self.upnp.lanaddr
+            if ip_to_bind is None:
+                ip_to_bind = self.upnp.lanaddr
                 self.debug(
-                    "INFO: add_port_mapping() -> No alternate ipToBind " +
+                    "INFO: add_port_mapping() -> No alternate ip_to_bind " +
                     "address passed, using default lan address (",
                     self.upnp.lanaddr, ")"
                 )
 
             try:
                 result = self.upnp.addportmapping(
-                    externalPort,
+                    external_port,
                     protocol,
-                    ipToBind,
-                    internalPort,
+                    ip_to_bind,
+                    internal_port,
                     PortMapper.OPEN_BAZAAR_DESCRIPTION + ' (' + protocol + ')',
                     ''
                 )
@@ -115,12 +115,12 @@ class PortMapper(object):
                 # ConflictInMappingEntry
                 result = False
 
-            self.debug("add_port_mapping(%s)?:" % str(externalPort), result)
+            self.debug("add_port_mapping(%s)?:" % str(external_port), result)
         return result
 
     def delete_port_mapping(self, port, protocol='TCP'):
         result = False
-        if self.UPNP_DEVICE_AVAILABLE:
+        if self.upnp_device_available:
             try:
                 result = self.upnp.deleteportmapping(port, protocol)
                 self.debug(
@@ -141,7 +141,7 @@ class PortMapper(object):
         """Return [PortMappingEntry]."""
         mappings = []
 
-        if self.UPNP_DEVICE_AVAILABLE:
+        if self.upnp_device_available:
             i = 0
             while True:
                 port_mapping = self.upnp.getgenericportmapping(i)
@@ -164,7 +164,7 @@ class PortMapper(object):
 
     def clean_my_mappings(self, port):
         """Delete previous OpenBazaar UPnP Port mappings if found."""
-        if self.UPNP_DEVICE_AVAILABLE:
+        if self.upnp_device_available:
             mappings = self.get_mapping_list()
             for mapping in mappings:
                 if mapping.description.startswith(PortMapper.OPEN_BAZAAR_DESCRIPTION) \
@@ -181,12 +181,12 @@ class PortMappingEntry(object):
     POPO to represent a port mapping entry;
     tuples are evil when used for abstractions.
     """
-    def __init__(self, port, protocol, internalHost, internalPort,
+    def __init__(self, port, protocol, internal_host, internal_port,
                  description, expiration):
         self.port = port
         self.protocol = protocol
-        self.internalHost = internalHost
-        self.internalPort = internalPort
+        self.internal_host = internal_host
+        self.internal_port = internal_port
         self.description = description
         self.expiration = expiration
 
@@ -194,8 +194,8 @@ class PortMappingEntry(object):
         return '{ protocol:' + self.protocol + \
                ', description: ' + self.description + \
                ', port: ' + str(self.port) + \
-               ', internalPort: ' + str(self.internalPort) + \
-               ', internalHost: ' + self.internalHost + \
+               ', internal_port: ' + str(self.internal_port) + \
+               ', internal_host: ' + self.internal_host + \
                ', expiration: ' + str(self.expiration) + \
                '}'
 

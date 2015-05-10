@@ -17,7 +17,7 @@ class Window(object):
         )
         self.log.info('Init Window')
 
-        self.ee = EventEmitter()
+        self.event_emitter = EventEmitter()
 
         self._packets = packets
         self._acknowledged = []
@@ -27,7 +27,7 @@ class Window(object):
         pkts = list(self._packets)
 
         if len(pkts) < 1:
-            self.ee.emit('done')
+            self.event_emitter.emit('done')
             return
 
         # The initial synchronization packet. Always send this first.
@@ -40,16 +40,16 @@ class Window(object):
         # different from that of the synchronization packet.
         if self._reset_packet is not self.synchronization_packet:
             # pylint: disable=unused-variable
-            @self._reset_packet.ee.on('acknowledge')
+            @self._reset_packet.event_emitter.on('acknowledge')
             def on_acknowledge():
                 self.log.debug('ACKNOWLEDGED PACKETS: %s', self._acknowledged)
                 self.log.debug('done for real')
-                self.ee.emit('done')
+                self.event_emitter.emit('done')
 
         # Will be used to handle the case when all non sync or reset packets have
         # been acknowledged.
 
-        @self.synchronization_packet.ee.on('acknowledge')
+        @self.synchronization_packet.event_emitter.on('acknowledge')
         def on_sync_knowledge():  # pylint: disable=unused-variable
 
             self.log.debug('ACK SYNC: #%s', self.synchronization_packet.get_sequence_number())
@@ -61,7 +61,7 @@ class Window(object):
 
             if self._reset_packet is self.synchronization_packet:
                 self.log.debug('SYNC is RESET. DONE')
-                self.ee.emit('done')
+                self.event_emitter.emit('done')
                 return
             elif not len(pkts):
                 # This means that this window only had two packets, and the second one
@@ -71,7 +71,7 @@ class Window(object):
                 return
 
             # pylint: disable=unused-variable
-            @self.ee.on('acknowledge')
+            @self.event_emitter.on('acknowledge')
             def on_sender_acknowledge():
                 # This means that it is now time to send the reset packet.
                 self.log.debug('RESET SENT: #%s', self.synchronization_packet.get_sequence_number())
@@ -79,12 +79,12 @@ class Window(object):
 
             for packet in pkts:
                 # pylint: disable=unused-variable
-                @packet.ee.on('acknowledge')
+                @packet.event_emitter.on('acknowledge')
                 def on_packet_acknowledge():
 
                     if len(self._acknowledged) == len(self._packets)-1:
                         self.log.debug('ALL PACKETS ACKD')
-                        self.ee.emit('acknowledge')
+                        self.event_emitter.emit('acknowledge')
 
                 packet.send()
 
@@ -118,7 +118,7 @@ class Sender(object):
         self._sending = None
         self._last_sent = 0
 
-        self.ee = EventEmitter()
+        self.event_emitter = EventEmitter()
 
     def send(self, data):
         data_encoded = data.encode('hex')
@@ -128,12 +128,12 @@ class Sender(object):
         message_id = random.randint(0, 99999)
 
         # Split message into chunks
-        chunks = rudp.helpers.splitArrayLike(data_encoded, rudp.constants.UDP_SAFE_SEGMENT_SIZE,
-                                             message_id, data_size)
+        chunks = rudp.helpers.split_array_like(data_encoded, rudp.constants.UDP_SAFE_SEGMENT_SIZE,
+                                               message_id, data_size)
         self.log.debug('Sending %d chunks', len(chunks))
 
         # Organize into windows
-        windows = rudp.helpers.splitArrayLike(chunks, rudp.constants.WINDOW_SIZE)
+        windows = rudp.helpers.split_array_like(chunks, rudp.constants.WINDOW_SIZE)
 
         # Clear stale windows
         if time.time() - self._last_sent > 5 and self._last_sent != 0:
@@ -167,11 +167,11 @@ class Sender(object):
             self._sending = to_send
 
             # pylint: disable=unused-variable
-            @self._sending.ee.on('done')
+            @self._sending.event_emitter.on('done')
             def on_done():
                 self.log.debug('Window Complete: %s', len(self._sending._packets))
-                for x in self._sending._packets:
-                    x._sending = False
+                for packet in self._sending._packets:
+                    packet._sending = False
                 self._sending = None
                 self._last_sent = 0
                 self._push()
