@@ -760,7 +760,7 @@ class DHT(object):
 
             for close_node in close_nodes:
                 if close_node.guid:
-                    shortlist.append((close_node.ip_address, close_node.port, close_node.guid))
+                    shortlist.append((close_node.hostname, close_node.port, close_node.guid))
 
             if len(shortlist) > 0:
                 new_search.add_to_shortlist(shortlist)
