@@ -364,7 +364,7 @@ def start(arguments):
 
     # Try to get NAT escape UDP port
     if not arguments.dev_mode:
-        nat_status = network_util.get_NAT_status()
+        nat_status = network_util.get_nat_status()
     else:
         nat_status = {
             'nat_type': 'Restric NAT'
