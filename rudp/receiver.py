@@ -149,10 +149,10 @@ class Receiver(object):
             if packet._synchronize:
                 if not message.synced:
                     self.log.debug('Receive Sync Packet')
-                    if packet._sequenceNumber == message._sync_sequence_number:
+                    if packet._sequence_number == message._sync_sequence_number:
                         return
 
-                    self.log.debug('Inserting Packet #%s', packet._sequenceNumber)
+                    self.log.debug('Inserting Packet #%s', packet._sequence_number)
                     message._packets.insert_sorted(packet)
 
                     if not message.waiting:
@@ -161,15 +161,15 @@ class Receiver(object):
                         self.log.debug('Appending to Waiting Message: %s', self._message)
                         message.add_to_body(payload)
 
-                    message._next_sequence_number = packet._sequenceNumber + 1
+                    message._next_sequence_number = packet._sequence_number + 1
                     message.synced = True
-                    message._sync_sequence_number = packet._sequenceNumber
+                    message._sync_sequence_number = packet._sequence_number
 
                     if packet._reset:
                         message.reset()
 
                     self._packet_sender.send(Packet.create_acknowledgement_packet(
-                        packet._sequenceNumber,
+                        packet._sequence_number,
                         self._packet_sender._transport.guid,
                         self._packet_sender._transport.pubkey
                     ))
@@ -188,7 +188,7 @@ class Receiver(object):
                     self.log.debug('Message Updated: %s', message.body)
                     message.reset()
                 self._packet_sender.send(Packet.create_acknowledgement_packet(
-                    packet._sequenceNumber,
+                    packet._sequence_number,
                     self._packet_sender._transport.guid,
                     self._packet_sender._transport.pubkey
                 ))
@@ -209,7 +209,7 @@ class Receiver(object):
                         # if message._packets.has_next():
                         #     self._push_if_expected_sequence(self._packets.next_value())
                     self._packet_sender.send(Packet.create_acknowledgement_packet(
-                        packet._sequenceNumber,
+                        packet._sequence_number,
                         self._packet_sender._transport.guid,
                         self._packet_sender._transport.pubkey
                     ))

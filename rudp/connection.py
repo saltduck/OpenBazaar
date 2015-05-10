@@ -38,7 +38,7 @@ class Connection(object):
 
     def receive(self, packet):
         if packet._acknowledgement:
-            self._sender.verify_acknowledgement(packet._sequenceNumber)
+            self._sender.verify_acknowledgement(packet._sequence_number)
         else:
             self._receiver.receive(packet)
         count_incoming_packet(packet)
