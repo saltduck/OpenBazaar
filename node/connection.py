@@ -116,8 +116,8 @@ class PeerConnection(GUIDMixin, object):
             if time.time() - self.last_reached <= PEERCONNECTION_PINGER_TIMEOUT_IN_SECONDS:
                 self.reachable = True
                 self.send_ping()
+                self.loop.call_later(PEERCONNECTION_PING_TASK_INTERVAL_IN_MS, pinger)
             else:
-                self.ping_task.stop()
                 self.reachable = False
                 # if self.guid:
                     # self.log.error('Peer not responding. Removing.')
@@ -130,8 +130,7 @@ class PeerConnection(GUIDMixin, object):
 
                     # yappi.get_thread_stats().print_all()
 
-        self.ping_task = ioloop.PeriodicCallback(pinger, PEERCONNECTION_PING_TASK_INTERVAL_IN_MS, io_loop=self.loop)
-        self.ping_task.start()
+        self.loop.call_later(PEERCONNECTION_PING_TASK_INTERVAL_IN_MS, pinger)
 
     def setup_emitters(self):
         self.log.debug('Setting up emitters')
