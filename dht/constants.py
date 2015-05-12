@@ -27,7 +27,7 @@ ITERATIVE_LOOKUP_DELAY = RPC_TIMEOUT / 2
 
 # If a KBucket has not been used for this amount of time, refresh it.
 # [seconds]
-REFRESH_TIMEOUT = 60 * 60 * 1000  # 1 hour
+REFRESH_TIMEOUT = 3600  # 1 hour
 
 # The interval in which the node should check whether any buckets
 # need refreshing or whether any data needs to be republished
