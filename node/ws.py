@@ -1374,7 +1374,7 @@ class ProtocolHandler(object):
                 peer.reachable = True
                 reachable_count += 1
 
-            if hasattr(peer, 'hostname') and peer.guid:
+            if hasattr(peer, 'hostname') and peer.guid[:4] != 'seed':
                 peer_item = {
                     'hostname': peer.hostname,
                     'port': peer.port
