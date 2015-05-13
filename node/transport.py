@@ -831,8 +831,8 @@ class CryptoTransportLayer(TransportLayer):
         self.settings.update(newsettings)
 
     def join_network(self, seeds=None, callback=None):
-        if seeds is None:
-            seeds = []
+        if not seeds:
+            seeds = self.ob_ctx.seeds if not self.ob_ctx.seed_mode else []
 
         self.log.info('Joining network')
 
