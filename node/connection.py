@@ -4,7 +4,7 @@ from pprint import pformat
 from pyee import EventEmitter
 from threading import Thread
 from node.constants import VERSION, MSG_PING_ID, PEERCONNECTION_NO_RESPONSE_DELAY_IN_SECONDS, \
-    PEERCONNECTION_PINGER_TIMEOUT_IN_SECONDS, PEERCONNECTION_PING_TASK_INTERVAL_IN_MS, \
+    PEERCONNECTION_PINGER_TIMEOUT_IN_SECONDS, PEERCONNECTION_PING_TASK_INTERVAL_IN_SECONDS, \
     PEERCONNECTION_SENDING_OUT_DELAY_IN_SECONDS, PEERLISTENER_RECV_FROM_BUFFER_SIZE, \
     MSG_PING_ID_SIZE, MSG_PONG_ID_SIZE, MSG_PONG_ID, MSG_SEND_RELAY_PING_ID_SIZE, MSG_SEND_RELAY_PING_ID, \
     MSG_RELAY_PING_ID_SIZE, MSG_RELAY_PING_ID, \
@@ -116,7 +116,7 @@ class PeerConnection(GUIDMixin, object):
             if time.time() - self.last_reached <= PEERCONNECTION_PINGER_TIMEOUT_IN_SECONDS:
                 self.reachable = True
                 self.send_ping()
-                self.loop.call_later(PEERCONNECTION_PING_TASK_INTERVAL_IN_MS, pinger)
+                self.loop.call_later(PEERCONNECTION_PING_TASK_INTERVAL_IN_SECONDS, pinger)
             else:
                 self.reachable = False
                 # if self.guid:
@@ -130,7 +130,7 @@ class PeerConnection(GUIDMixin, object):
 
                     # yappi.get_thread_stats().print_all()
 
-        self.loop.call_later(PEERCONNECTION_PING_TASK_INTERVAL_IN_MS, pinger)
+        self.loop.call_later(PEERCONNECTION_PING_TASK_INTERVAL_IN_SECONDS, pinger)
 
     def setup_emitters(self):
         self.log.debug('Setting up emitters')
