@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
-from sqlite3 import dbapi2 # pylint: disable=import-error
+from sqlite3 import dbapi2
 
 from db.migrations import migrations_util
-from node import constants # pylint: disable=import-error
+from node import constants
 
 
 def upgrade(db_path):
