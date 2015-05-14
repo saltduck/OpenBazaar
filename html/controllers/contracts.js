@@ -238,8 +238,16 @@ angular.module('app')
                             }
                         };
 
-                        var keywords = ($scope.contract.productKeywords[0]) ? $scope.contract.productKeywords.split(',') : [];
-                        $.each(keywords, function(i, el) {
+                        if(typeof($scope.contract.productKeywords) === 'string' && $scope.contract.productKeywords !== "") {
+                            item_keywords = $scope.contract.productKeywords.split(',');
+                        } else if (typeof($scope.contract.productKeywords) === 'object') {
+                            item_keywords = $scope.contract.productKeywords;
+                        } else {
+                            item_keywords = [];
+                        }
+
+                        contract.Contract.item_keywords = [];
+                        $.each(item_keywords, function(i, el) {
                             if ($.inArray(el.trim(), contract.Contract.item_keywords) === -1 && el.trim() !== '') {
                                 contract.Contract.item_keywords.push(el.trim());
                             }
@@ -277,8 +285,8 @@ angular.module('app')
                             Notifier.success('Success', 'Contract saved successfully.');
                         }
 
+                        $scope.contract = {};
                         Connection.send("query_contracts", {});
-
 
                     }
                     $modalInstance.dismiss('cancel');
