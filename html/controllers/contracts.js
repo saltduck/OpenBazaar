@@ -13,6 +13,8 @@ angular.module('app')
             $scope.path = $location.path();
             $scope.$emit('sidebar', false);
 
+            Connection.send('get_btc_ticker', {});
+
             /**
              * Establish message handlers
              * @msg - message from websocket to pass on to handler
@@ -155,6 +157,8 @@ angular.module('app')
             $scope.ProductModalInstance = function($scope, $modalInstance, contract, edit, scope) {
 
                 console.log('Last USD Price: ', scope.$parent.last_price_usd);
+                $scope.last_price_usd = scope.$parent.last_price_usd;
+                $scope.last_price_eur = scope.$parent.last_price_eur;
 
                 if(edit) {
                     contract = contract.contract;
@@ -171,7 +175,6 @@ angular.module('app')
                     $scope.contract.remoteImages = contract.item_remote_images;
                     $scope.contract.productKeywords = contract.item_keywords;
                     $scope.edit = true;
-
                 } else {
                     $scope.contract = contract;
                     $scope.contract.id = '';
@@ -183,8 +186,6 @@ angular.module('app')
                     $scope.contract.remoteImages = [];
                     $scope.contract.productKeywords = [];
                     $scope.edit = false;
-                    $scope.last_price_usd = scope.$parent.last_price_usd;
-                    $scope.last_price_eur = scope.$parent.last_price_eur;
                 }
 
                 console.log($scope.contract);
