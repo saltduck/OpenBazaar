@@ -77,6 +77,7 @@ class KBucket(collections.Sequence):
             FullBucketError: The bucket is full and the contact to add
                 is not already in it.
         """
+        assert self.contact_in_range(contact), 'Wrong KBucket.'
         try:
             self._contacts.remove(contact)
         except ValueError:
