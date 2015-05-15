@@ -197,6 +197,9 @@ openbazaar [options] <command>
     --enable-ip-checker
         Enable periodic IP address checking.
         Useful in case you expect your IP to change rapidly.
+
+    --seeds
+        Specify seed servers to bootstrap the network rather than use defaults
 """
 
 
