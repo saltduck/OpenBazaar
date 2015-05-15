@@ -262,8 +262,11 @@ def create_openbazaar_contexts(arguments, nat_status):
 
         seed_tuples = []
         for seed in arguments.seeds:
-            seed_split = seed.split(':')
-            seed_tuples.append((seed_split[0], seed_split[1]))
+            if type(seed) is not tuple:
+                seed_split = seed.split(':')
+                seed_tuples.append((seed_split[0], seed_split[1]))
+            else:
+                seed_tuples.append(seed)
 
         # we return a list of a single element, a production node.
         ob_ctxs.append(OpenBazaarContext(nat_status,
