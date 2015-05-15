@@ -10,6 +10,7 @@ Exceptions:
 """
 
 import collections
+import functools
 import time
 
 from dht import constants, util
@@ -41,12 +42,25 @@ class KBucket(collections.Sequence):
         # while stale contacts are near the head.
         self._contacts = []
 
+    # pylint: disable=no-self-argument
+    # pylint: disable=not-callable
+    def _touch(func):
+        """
+        Update the `last_accessed` attribute upon method invocation.
+        """
+        @functools.wraps(func)
+        def updating_method(self, *args, **kwargs):
+            self.last_accessed = int(time.time())
+            return func(self, *args, **kwargs)
+        return updating_method
+
     def __getitem__(self, key):
         return self._contacts[key]
 
     def __len__(self):
         return len(self._contacts)
 
+    @_touch
     def add_contact(self, contact):
         """
         Add a contact to the contact list.
@@ -73,6 +87,7 @@ class KBucket(collections.Sequence):
         else:
             raise FullBucketError('No space in bucket to insert contact')
 
+    @_touch
     def get_contact(self, guid):
         """
         Return the contact with the specified guid or None if not present.
@@ -89,6 +104,7 @@ class KBucket(collections.Sequence):
                 return contact
         return None
 
+    @_touch
     def get_contacts(self, count=-1, excluded_guid=None):
         """
         Return a list of contacts from the KBucket.
@@ -127,6 +143,7 @@ class KBucket(collections.Sequence):
                     break
         return contact_list
 
+    @_touch
     def remove_contact(self, contact):
         """
         Remove given contact from contact list.
@@ -141,6 +158,7 @@ class KBucket(collections.Sequence):
         except ValueError:
             pass
 
+    @_touch
     def remove_guid(self, guid):
         """
         Remove contact with given guid from contact list.
@@ -218,13 +236,6 @@ class KBucket(collections.Sequence):
         """
         return self.range_min <= util.guid_to_num(guid) < self.range_max
 
-    def touch(self):
-        """
-        Update the `last_accessed` timestamp of the KBucket by setting
-        it to current local time.
-        """
-        self.last_accessed = int(time.time())
-
 
 class CachingKBucket(KBucket):
     """A KBucket with a replacement cache."""
@@ -237,6 +248,19 @@ class CachingKBucket(KBucket):
         # than entries at the head (left).
         self._replacement_cache = collections.deque()
 
+    # pylint: disable=no-self-argument
+    # pylint: disable=not-callable
+    def _touch(func):
+        """
+        Update the `last_accessed` attribute upon method invocation.
+        """
+        @functools.wraps(func)
+        def updating_method(self, *args, **kwargs):
+            self.last_accessed = int(time.time())
+            return func(self, *args, **kwargs)
+        return updating_method
+
+    @_touch
     def cache_contact(self, contact):
         """
         Store a contact in the KBucket's replacement cache. Evict any
@@ -328,6 +352,7 @@ class CachingKBucket(KBucket):
 
         return new_kbucket
 
+    @_touch
     def fill_from_cache(self):
         """
         Move contacts from the cache to the main list, until the

@@ -294,6 +294,38 @@ class TestKBucket(unittest.TestCase):
         for num in (low_out, high_out):
             self.assertFalse(bucket.guid_in_range(util.num_to_guid(num)))
 
+    def test_is_stale(self):
+        self.bucket.last_accessed = util.now() - constants.REFRESH_TIMEOUT
+        self.assertTrue(self.bucket.is_stale())
+
+        self.bucket.last_accessed = util.now()
+        self.assertFalse(self.bucket.is_stale())
+
+    def test_add_contact_updates_timestamp(self):
+        self.bucket.last_accessed = 1
+        self.bucket.add_contact(self._make_contact_from_num(self.range_min))
+        self.assertFalse(self.bucket.is_stale())
+
+    def test_remove_contact_updates_timestamp(self):
+        self.bucket.last_accessed = 1
+        self.bucket.remove_contact(self._make_contact_from_num(self.range_min))
+        self.assertFalse(self.bucket.is_stale())
+
+    def test_remove_guid_updates_timestamp(self):
+        self.bucket.last_accessed = 1
+        self.bucket.remove_guid(util.num_to_guid(self.range_min))
+        self.assertFalse(self.bucket.is_stale())
+
+    def test_get_contact_updates_timestamp(self):
+        self.bucket.last_accessed = 1
+        self.bucket.get_contact(util.num_to_guid(self.range_min))
+        self.assertFalse(self.bucket.is_stale())
+
+    def test_get_contacts_updates_timestamp(self):
+        self.bucket.last_accessed = 1
+        self.bucket.get_contacts()
+        self.assertFalse(self.bucket.is_stale())
+
 
 class TestCachingKBucket(TestKBucket):
 
@@ -421,6 +453,16 @@ class TestCachingKBucket(TestKBucket):
             old_main_count + old_cache_count,
         )
         self.assertGreater(main_count, old_main_count)
+
+    def test_cache_contact_updates_timestamp(self):
+        self.bucket.last_accessed = 1
+        self.bucket.cache_contact(self._make_contact_from_num(self.range_min))
+        self.assertFalse(self.bucket.is_stale())
+
+    def test_fill_from_cache_updates_timestamp(self):
+        self.bucket.last_accessed = 1
+        self.bucket.fill_from_cache()
+        self.assertFalse(self.bucket.is_stale())
 
 if __name__ == "__main__":
     unittest.main()
