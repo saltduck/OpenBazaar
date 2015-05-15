@@ -14,7 +14,7 @@
                 </tr>
                 <tr>
                     <td width="60">
-                        <img src="{{sender.avatar_url}}" class="thumb thumb-inbox img-rounded" data-ng-show="sender.avatar_url !== null && sender.avatar_url !== ''"/>
+                        <img data-ng-src="{{sender.avatar_url}}" class="thumb thumb-inbox img-rounded" data-ng-show="sender.avatar_url !== null && sender.avatar_url !== ''"/>
                         <identicon data-ng-show="sender.avatar === null || sender.avatar_url === ''" icon-size="50" hash="inbox.message.sender_guid" title="{{inbox.message.sender_guid}}"></identicon>
                     </td>
                     <td>
