@@ -108,6 +108,7 @@ openbazaar [options] <command>
         openbazaar -d --dev-nodes 4 -j --server-ip 79.104.98.111 start
         openbazaar --dev-mode -n 4 -i 79.104.98.111 start
         openbazaar --server-ip 200.2.8.100 --server-port 12333 --disable-stun-check start
+        openbazaar --seeds seed.openbazaar.org:12345 start
         openbazaar stop
 
     OPTIONS
@@ -198,7 +199,7 @@ openbazaar [options] <command>
         Enable periodic IP address checking.
         Useful in case you expect your IP to change rapidly.
 
-    --seeds
+    -s, --seeds
         Specify seed servers to bootstrap the network rather than use defaults
 """
 
@@ -259,6 +260,11 @@ def create_openbazaar_contexts(arguments, nat_status):
         if arguments.log != log_path:
             log_path = arguments.log
 
+        seed_tuples = []
+        for seed in arguments.seeds:
+            seed_split = seed.split(':')
+            seed_tuples.append((seed_split[0], seed_split[1]))
+
         # we return a list of a single element, a production node.
         ob_ctxs.append(OpenBazaarContext(nat_status,
                                          server_ip,
@@ -274,7 +280,7 @@ def create_openbazaar_contexts(arguments, nat_status):
                                          arguments.bm_port,
                                          arguments.mediator_port,
                                          arguments.mediator,
-                                         arguments.seeds,
+                                         seed_tuples,
                                          arguments.seed_mode,
                                          arguments.dev_mode,
                                          arguments.dev_nodes,
