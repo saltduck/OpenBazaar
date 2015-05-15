@@ -93,7 +93,7 @@
 
                                 <li><a data-ng-href="#/settings">Settings</a></li>
                                 <li>
-                                    <img src="{{myself.settings.avatar_url}}" class="thumb thumb-icon img-circle" data-ng-show="myself.settings.avatar_url != ''" />
+                                    <img data-ng-src="{{myself.settings.avatar_url}}" class="thumb thumb-icon img-circle" data-ng-show="myself.settings.avatar_url != ''" />
                                     <identicon icon-size="30" hash="myself.guid" title="{{myself.guid}}" data-ng-show="myself.settings.avatar_url == ''" ></identicon>
                                 </li>
                             </ul>
@@ -122,7 +122,7 @@
                     <tbody>
                     <tr>
                         <td width="40" style="vertical-align:top">
-                            <img src="{{myself.settings.avatar_url}}" class="thumb thumb-small img-circle" data-ng-show="myself.settings.avatar_url !== undefined && myself.settings.avatar_url !== ''" />
+                            <img data-ng-src="{{myself.settings.avatar_url}}" class="thumb thumb-small img-circle" data-ng-show="myself.settings.avatar_url !== undefined && myself.settings.avatar_url !== ''" />
                                     <identicon icon-size="50" hash="myself.guid" title="{{myself.guid}}" data-ng-show="myself.settings.avatar_url === ''" ></identicon>
 
                         <td style="font-size:14px;word-wrap:break-word;word-break:break-all">
@@ -146,7 +146,7 @@
                         <tbody>
                             <tr data-ng-repeat="peer in peers | filter: {reachable:'true'} track by peer.guid" data-ng-click="goToStore('/user/'+peer.guid+'/products', peer.guid);">
                                 <td width="50" style="vertical-align:top" >
-                                    <img src="{{peer.avatar_url}}" class="thumb thumb-small img-circle" data-ng-show="peer.avatar_url !== null && peer.avatar_url !== ''" />
+                                    <img data-ng-src="{{peer.avatar_url}}" class="thumb thumb-small img-circle" data-ng-show="peer.avatar_url !== null && peer.avatar_url !== ''" />
                                     <identicon icon-size="50" hash="peer.guid" title="{{peer.guid}}" data-ng-show="peer.avatar_url === null || peer.avatar_url == ''" class="img-rounded"></identicon>
                                 </td>
                                 <td>
@@ -175,7 +175,7 @@
                     <div class="shout-chats">
                         <div data-ng-repeat="shout in shouts.slice().reverse()" style="margin-bottom:10px;">
                             <div>
-                                <img src="{{shout.avatar_url}}" class="thumb thumb-tiny img-circle" data-ng-show="shout.avatar_url !== null && shout.avatar_url !== ''"  style="float:left;margin-right:10px;"/>
+                                <img data-ng-src="{{shout.avatar_url}}" class="thumb thumb-tiny img-circle" data-ng-show="shout.avatar_url !== null && shout.avatar_url !== ''"  style="float:left;margin-right:10px;"/>
                                 <identicon icon-size="25" hash="shout.senderGUID" title="{{shout.senderGUID}}" data-ng-show="shout.avatar_url === null || shout.avatar_url === ''"  style="float:left;margin-right:10px;"></identicon>
 
                             </div><div>{{shout.text}}</div>
