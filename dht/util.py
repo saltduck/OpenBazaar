@@ -7,6 +7,13 @@ import random
 from dht import constants
 
 
+class BadGUIDError(Exception):
+
+    """Exception raised on detecting a bad guid."""
+
+    pass
+
+
 def partition(sequence, predicate):
     """
     Partition the sequence into two lists, according to the
@@ -43,10 +50,13 @@ def distance(guid1, guid2):
         XOR of the integers corresponding to the guids.
 
     Raises:
-        AssertionError: The guids were of improper length.
+        BadGUIDError: Some guid was of improper length.
     """
-    assert len(guid1) == constants.HEX_NODE_ID_LEN
-    assert len(guid2) == constants.HEX_NODE_ID_LEN
+    if len(guid1) != constants.HEX_NODE_ID_LEN:
+        raise BadGUIDError('guid of improper length: {0}'.format(guid1))
+    if len(guid2) != constants.HEX_NODE_ID_LEN:
+        raise BadGUIDError('guid of improper length: {0}'.format(guid2))
+
     return int(guid1, base=16) ^ int(guid2, base=16)
 
 

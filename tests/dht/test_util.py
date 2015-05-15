@@ -65,14 +65,14 @@ class TestUtil(unittest.TestCase):
 
     def test_distance_bad_guid(self):
         self.assertRaises(
-            AssertionError,
+            util.BadGUIDError,
             util.distance,
             'a',
             'a' * constants.HEX_NODE_ID_LEN
         )
 
         self.assertRaises(
-            AssertionError,
+            util.BadGUIDError,
             util.distance,
             'a' * constants.HEX_NODE_ID_LEN,
             'a'
