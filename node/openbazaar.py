@@ -262,7 +262,7 @@ def create_openbazaar_contexts(arguments, nat_status):
 
         seed_tuples = []
         for seed in arguments.seeds:
-            if type(seed) is not tuple:
+            if not isinstance(seed, tuple):
                 seed_split = seed.split(':')
                 seed_tuples.append((seed_split[0], seed_split[1]))
             else:
