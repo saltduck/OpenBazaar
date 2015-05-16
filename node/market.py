@@ -696,7 +696,7 @@ class Market(object):
         self.db_connection.update_entries(
             "contracts",
             {"deleted": "0"},
-            {"market_id": self.transport.market_id.replace("'", "''"), "id": contract_id}
+            {"market_id": self.market_id, "id": contract_id}
         )
 
     def save_settings(self, msg):
