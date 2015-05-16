@@ -3,6 +3,7 @@ Collection of utility functions not bound to a particular class.
 """
 
 import random
+import time
 
 from dht import constants
 
@@ -12,6 +13,13 @@ class BadGUIDError(Exception):
     """Exception raised on detecting a bad guid."""
 
     pass
+
+
+def now():
+    """
+    Return whole seconds passed since Epoch.
+    """
+    return int(time.time())
 
 
 def partition(sequence, predicate):

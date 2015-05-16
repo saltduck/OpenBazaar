@@ -7,7 +7,6 @@ Classes:
 
 import collections
 import logging
-import time
 
 from dht import constants, kbucket, util
 
@@ -204,14 +203,13 @@ class RoutingTable(collections.Sequence):
             A list of guids that should be searched for in order to
             refresh the RoutingTable.
         """
-        now = int(time.time())
         if force:
             buckets_to_refresh = self._buckets
         else:
             buckets_to_refresh = (
                 bucket
                 for bucket in self._buckets
-                if now - bucket.last_accessed >= constants.REFRESH_TIMEOUT
+                if bucket.is_stale()
             )
 
         return [

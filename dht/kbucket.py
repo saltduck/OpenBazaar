@@ -11,7 +11,6 @@ Exceptions:
 
 import collections
 import functools
-import time
 
 from dht import constants, util
 
@@ -33,7 +32,7 @@ class KBucket(collections.Sequence):
                 range in the ID space covered by this KBucket, as integers.
                 This is a half-open range: [range_min, range_max)
         """
-        self.last_accessed = int(time.time())
+        self.last_accessed = util.now()
         self.range_min = range_min
         self.range_max = range_max
 
@@ -50,7 +49,7 @@ class KBucket(collections.Sequence):
         """
         @functools.wraps(func)
         def updating_method(self, *args, **kwargs):
-            self.last_accessed = int(time.time())
+            self.last_accessed = util.now()
             return func(self, *args, **kwargs)
         return updating_method
 
@@ -237,6 +236,9 @@ class KBucket(collections.Sequence):
         """
         return self.range_min <= util.guid_to_num(guid) < self.range_max
 
+    def is_stale(self):
+        return util.now() - self.last_accessed >= constants.REFRESH_TIMEOUT
+
 
 class CachingKBucket(KBucket):
     """A KBucket with a replacement cache."""
@@ -257,7 +259,7 @@ class CachingKBucket(KBucket):
         """
         @functools.wraps(func)
         def updating_method(self, *args, **kwargs):
-            self.last_accessed = int(time.time())
+            self.last_accessed = util.now()
             return func(self, *args, **kwargs)
         return updating_method
 
