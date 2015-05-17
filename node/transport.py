@@ -799,13 +799,19 @@ class CryptoTransportLayer(TransportLayer):
         self.pubkey = identity_pub
         self.secret = identity_priv
 
-        # Generate SIN
+        # GUIDs should be the pubkey signed with privkey then
+        # hashed with SHA256 and subsequently RIPEMD160
+        # This can provide protection against Spartacus
+        # http://xlattice.sourceforge.net/components/protocol/kademlia/specs.html
+        signed_pubkey = self.cryptor.sign(self.pubkey)
         sha_hash = hashlib.sha256()
-        sha_hash.update(self.pubkey)
+        sha_hash.update(signed_pubkey)
         ripe_hash = hashlib.new('ripemd160')
         ripe_hash.update(sha_hash.digest())
 
         self.guid = ripe_hash.hexdigest()
+
+        # Generate SIN
         self.sin = obelisk.EncodeBase58Check('\x0F\x02%s' % ripe_hash.digest())
 
         newsettings = {
