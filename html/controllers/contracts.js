@@ -200,8 +200,9 @@ angular.module('app')
 
                 $scope.saveContract = function() {
 
-                    $scope.contract.productPrice = (String($scope.contract.productPrice).match(/^[+]?([0-9]+(?:[\.][0-9]*)?|\.[0-9]+)$/)) ? $scope.contract.productPrice : 0;
-                    $scope.contract.productShippingPrice = (String($scope.contract.productShippingPrice).match(/^[+]?([0-9]+(?:[\.][0-9]*)?|\.[0-9]+)$/)) ? $scope.contract.productShippingPrice : 0;
+                    var max = 21e6;
+                    $scope.contract.productPrice = Math.max(Math.min($scope.contract.productPrice, max), 0);
+                    $scope.contract.productShippingPrice = Math.max(Math.min($scope.contract.productShippingPrice, max), 0);
 
                     if (contract.contract) {
 
