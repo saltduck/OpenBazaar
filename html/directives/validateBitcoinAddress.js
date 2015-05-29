@@ -4,11 +4,10 @@ angular.module('app').directive("validateBitcoinAddress", function() {
         link: function(scope, ele, attrs, ctrl) {
 
             ctrl.$parsers.unshift(function(value) {
-                if(value){
-                    // test and set the validity after update.
-                    var valid = window.bitcoinAddress.validate(value);
-                    ctrl.$setValidity('validateBitcoinAddress', valid);
-                }
+
+                // test and set the validity after update.
+                var valid = window.bitcoinAddress.validate(value);
+                ctrl.$setValidity('validateBitcoinAddress', valid);
 
                 // if it's valid, return the value to the model,
                 // otherwise return undefined.
@@ -25,6 +24,6 @@ angular.module('app').directive("validateBitcoinAddress", function() {
 
 
         }
-    }
+    };
 
 });

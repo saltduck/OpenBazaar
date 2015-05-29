@@ -548,8 +548,8 @@ class ProtocolHandler(object):
                 usock = urllib2.urlopen(url)
                 data = usock.read()
                 usock.close()
-            except Exception as e:
-                self.log.error('Cannot retrieve ticker info: %s', e.message)
+            except Exception as usock_exception:
+                self.log.error('Cannot retrieve ticker info: %s', usock_exception.message)
                 return
 
             self.send_to_client(None, {
