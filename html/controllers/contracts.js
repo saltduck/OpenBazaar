@@ -6,6 +6,15 @@
  * @constructor
  */
 angular.module('app')
+    .filter('satoshis', function() {
+        return function(input) {
+            input = parseFloat(input) || 0;
+            input = Math.min(input, 21e6);
+            // Convert to satoshis and divide; will round to nearest satoshi
+            // FIXME the API should be returning this in satoshis anyway
+            return Math.round(input * 1e8) / 1e8;
+        };
+    })
     .controller('Contracts', ['$scope', '$interval', '$routeParams', '$location', 'Connection',
         function($scope, $interval, $routeParams, $location, Connection) {
 
@@ -192,8 +201,9 @@ angular.module('app')
 
                 $scope.saveContract = function() {
 
-                    $scope.contract.productPrice = (String($scope.contract.productPrice).match(/^[+]?([0-9]+(?:[\.][0-9]*)?|\.[0-9]+)$/)) ? $scope.contract.productPrice : 0;
-                    $scope.contract.productShippingPrice = (String($scope.contract.productShippingPrice).match(/^[+]?([0-9]+(?:[\.][0-9]*)?|\.[0-9]+)$/)) ? $scope.contract.productShippingPrice : 0;
+                    var max = 21e6;
+                    $scope.contract.productPrice = Math.max(Math.min($scope.contract.productPrice, max), 0);
+                    $scope.contract.productShippingPrice = Math.max(Math.min($scope.contract.productShippingPrice, max), 0);
 
                     if (contract.contract) {
 
