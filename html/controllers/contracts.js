@@ -13,6 +13,8 @@ angular.module('app')
             $scope.path = $location.path();
             $scope.$emit('sidebar', false);
 
+            Connection.send('get_btc_ticker', {});
+
             /**
              * Establish message handlers
              * @msg - message from websocket to pass on to handler
@@ -155,6 +157,8 @@ angular.module('app')
             $scope.ProductModalInstance = function($scope, $modalInstance, contract, edit, scope) {
 
                 console.log('Last USD Price: ', scope.$parent.last_price_usd);
+                $scope.last_price_usd = scope.$parent.last_price_usd;
+                $scope.last_price_eur = scope.$parent.last_price_eur;
 
                 if(edit) {
                     contract = contract.contract;
@@ -171,7 +175,6 @@ angular.module('app')
                     $scope.contract.remoteImages = contract.item_remote_images;
                     $scope.contract.productKeywords = contract.item_keywords;
                     $scope.edit = true;
-
                 } else {
                     $scope.contract = contract;
                     $scope.contract.id = '';
@@ -183,8 +186,6 @@ angular.module('app')
                     $scope.contract.remoteImages = [];
                     $scope.contract.productKeywords = [];
                     $scope.edit = false;
-                    $scope.last_price_usd = scope.$parent.last_price_usd;
-                    $scope.last_price_eur = scope.$parent.last_price_eur;
                 }
 
                 console.log($scope.contract);
@@ -237,8 +238,16 @@ angular.module('app')
                             }
                         };
 
-                        var keywords = ($scope.contract.productKeywords[0]) ? $scope.contract.productKeywords.split(',') : [];
-                        $.each(keywords, function(i, el) {
+                        if(typeof($scope.contract.productKeywords) === 'string' && $scope.contract.productKeywords !== "") {
+                            item_keywords = $scope.contract.productKeywords.split(',');
+                        } else if (typeof($scope.contract.productKeywords) === 'object') {
+                            item_keywords = $scope.contract.productKeywords;
+                        } else {
+                            item_keywords = [];
+                        }
+
+                        contract.Contract.item_keywords = [];
+                        $.each(item_keywords, function(i, el) {
                             if ($.inArray(el.trim(), contract.Contract.item_keywords) === -1 && el.trim() !== '') {
                                 contract.Contract.item_keywords.push(el.trim());
                             }
@@ -276,8 +285,8 @@ angular.module('app')
                             Notifier.success('Success', 'Contract saved successfully.');
                         }
 
+                        $scope.contract = {};
                         Connection.send("query_contracts", {});
-
 
                     }
                     $modalInstance.dismiss('cancel');
