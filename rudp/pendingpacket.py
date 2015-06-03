@@ -6,12 +6,12 @@ from tornado import ioloop
 class PendingPacket(object):
 
     def __init__(self, packet, packet_sender):
-
-        self.ee = EventEmitter()
+        self.loop = ioloop.IOLoop.current()
+        self.event_emitter = EventEmitter()
 
         self._packet_sender = packet_sender
         self._packet = packet
-        self._intervalID = None
+        self._interval_id = None
         self._sending = False
         self._sending_count = 0
 
@@ -25,22 +25,10 @@ class PendingPacket(object):
 
         self._sending = True
 
-        def packet_send(counter):
+        self.log.debug('Sending Packet #%s: %s', self._packet.get_sequence_number(), self._sending)
+        self._packet_sender.send(self._packet)
 
-            def packet_lost():
-                if self._sending:
-                    self.log.info('Packet %s Lost', self._packet.get_sequence_number())
-
-            if self._sending and counter < 2:
-                self.log.debug('Sending Packet #%s: %s', self._packet.get_sequence_number(), self._sending)
-                self._packet_sender.send(self._packet)
-                packet_send(counter+1)
-            else:
-                ioloop.IOLoop.instance().call_later(5, packet_lost)
-
-        packet_send(0)
-
-        # self._intervalID = rudp.helpers.set_interval(
+        # self._interval_id = rudp.helpers.set_interval(
         #     packet_send,
         #     rudp.constants.TIMEOUT
         # )
@@ -54,8 +42,8 @@ class PendingPacket(object):
         self.log.debug('Pending Packet Acknowledged: %s', self._packet.get_sequence_number())
         self._sending = None
 
-        if self._intervalID:
-            self._intervalID.cancel()
-            self._intervalID = None
+        if self._interval_id:
+            self._interval_id.cancel()
+            self._interval_id = None
 
-        self.ee.emit('acknowledge')
+        self.event_emitter.emit('acknowledge')

@@ -117,7 +117,7 @@ class Obdb(object):
         where_part = []
         set_part = []
         for key, value in set_dict.iteritems():
-            if type(value) == bool:
+            if isinstance(value, bool):
                 value = bool(value)
             key = self._before_storing(key)
             value = self._before_storing(value)
@@ -154,7 +154,7 @@ class Obdb(object):
         updatefield_part = []
         setfield_part = []
         for key, value in update_dict.iteritems():
-            if type(value) == bool:
+            if isinstance(value, bool):
                 value = bool(value)
             key = self._before_storing(key)
             value = self._before_storing(value)

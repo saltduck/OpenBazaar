@@ -44,6 +44,8 @@ class Market(object):
           gpg: Public PGP key class
         """
 
+        self.loop = ioloop.IOLoop.current()
+
         # Current
         self.transport = transport
         self.dht = transport.dht
@@ -91,10 +93,9 @@ class Market(object):
 
     def start_listing_republisher(self):
         # Periodically refresh buckets
-        loop = ioloop.IOLoop.instance()
         refresh_cb = ioloop.PeriodicCallback(self.dht._refresh_node,
                                              constants.REFRESH_TIMEOUT,
-                                             io_loop=loop)
+                                             io_loop=self.loop)
         refresh_cb.start()
 
     def disable_welcome_screen(self):
@@ -680,7 +681,8 @@ class Market(object):
                 'item_desc': contract_field.get('item_desc'),
                 'item_condition': contract_field.get('item_condition'),
                 'item_quantity_available': contract_field.get('item_quantity'),
-                'item_remote_images': contract_field.get('item_remote_images')
+                'item_remote_images': contract_field.get('item_remote_images'),
+                'item_keywords': contract_field.get('item_keywords')
             })
 
         return {
@@ -694,7 +696,7 @@ class Market(object):
         self.db_connection.update_entries(
             "contracts",
             {"deleted": "0"},
-            {"market_id": self.transport.market_id.replace("'", "''"), "id": contract_id}
+            {"market_id": self.market_id, "id": contract_id}
         )
 
     def save_settings(self, msg):
@@ -946,13 +948,13 @@ class Market(object):
     def on_peer(self, peer):
         pass
 
-    def release_funds_to_recipient(self, buyer_order_id, tx, script, signatures, guid, buyer_id, refund=0):
+    def release_funds_to_recipient(self, buyer_order_id, transaction, script, signatures, guid, buyer_id, refund=0):
         """Send TX to merchant"""
-        self.log.debug("Release funds to merchant: %s %s %s %s", buyer_order_id, tx, signatures, guid)
+        self.log.debug("Release funds to merchant: %s %s %s %s", buyer_order_id, transaction, signatures, guid)
         self.transport.send(
             {
                 'type': 'release_funds_tx',
-                'tx': tx,
+                'tx': transaction,
                 'script': script,
                 'buyer_order_id': buyer_order_id,
                 'signatures': signatures,

@@ -5,19 +5,20 @@
 [![Coverage Status](https://coveralls.io/repos/OpenBazaar/OpenBazaar/badge.png)](https://coveralls.io/r/OpenBazaar/OpenBazaar)
 [![Stories in Ready](https://badge.waffle.io/OpenBazaar/OpenBazaar.svg?label=ready&title=Ready)](http://waffle.io/OpenBazaar/OpenBazaar)
 
-Seed Uptime Status: (http://status.openbazaar.org/)
-
 ======
 
 **Zero** Fees. **Zero** Censorship.
 
-OpenBazaar is a decentralized marketplace proof of concept. It is based off of the POC code by the darkmarket team and is now licensed under the [MIT license](http://opensource.org/licenses/MIT).
+**OpenBazaar** is a decentralized peer-to-peer marketplace where goods and services are traded in Bitcoin. OpenBazaar uses a Kademlia-style distributed hash table (DHT), which is architecturally comparable to BitTorrent. Items are created and hosted on the nodes of users on the network. The project is originally based off of the proof of concept code for DarkMarket, created by Amir Taaki and Airbitz, and is now licensed under the [MIT license](http://opensource.org/licenses/MIT).
 
-- **Official Site:** http://openbazaar.org
+- **Official Site:** https://openbazaar.org
+- **Contact us:** project@openbazaar.org
+- **Slack:** https://openbazaar.slack.com
+  - [Email us](mailto:project@openbazaar.org) to apply for access
+- **IRC Chat:** #OpenBazaar on [Freenode](https://webchat.freenode.net/)
 - **Forums:**
   - *unSYSTEM*: https://forum.unsystem.net/category/projects/openbazaar
   - *Bitcoin Talk*: https://bitcointalk.org/index.php?topic=768081.0
-- **IRC Chat:** #OpenBazaar on [Freenode](http://webchat.freenode.net/)
 - **Original Presentation at Toronto Hackathon:** https://www.youtube.com/watch?v=lHVqH8XO1Pk#t=86
 - **Slides from 'Bitcoin in the Beltway' by Brian Hoffman:** http://www.slideshare.net/openbazaar/open-bazaar
 
@@ -31,16 +32,16 @@ You can financially support the project by either:
 ## Features (Notional)
 - Full market editor for management of items catalog
 - Order management system
-- Ricardian-style contracts
+- Ricardian contracts
 - Multisignature escrow-based transactions
-- Arbiter management and marketplace
+- Notary and dispute resolution marketplace
 - Private messaging
 - Identity/Reputation system
 
 ## Project Status
-- *OpenBazaar* is currently in **beta 4.0**
+- *OpenBazaar* is currently in **Beta 5.0**
 - New versions are scheduled for release at the end of each month
-- [Development Roadmap](https://github.com/OpenBazaar/OpenBazaar/wiki/Development-Roadmap)
+- [Development Roadmap](https://github.com/OpenBazaar/OpenBazaar/wiki/03.-Development-Roadmap)
 
 ## Build Instructions
 
@@ -60,12 +61,12 @@ After running the configure.sh script you should have an OpenBazaar installation
 ```
 OpenBazaar will open in a random port on your default web browser. Note that it may take several minutes for OpenBazaar to completely start.
 
-Read more at the [build instructions wiki](https://github.com/OpenBazaar/OpenBazaar/wiki/Build-Instructions).
+Read more on [build instructions in our wiki](https://github.com/OpenBazaar/OpenBazaar/wiki/01.-Getting-Started).
 
 ## Artwork Contributions
 <img src="https://blog.openbazaar.org/wp-content/uploads/2014/07/logo.png" width="500px"/>  
 contributed by Jacob Payne  
-<img src="http://i.imgur.com/WwPUXGS.png" width="500px"/>  
+<img src="https://i.imgur.com/WwPUXGS.png" width="500px"/>  
 contributed by Dean Masley
 
 ## Theory Work

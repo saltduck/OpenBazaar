@@ -25,7 +25,7 @@ def set_stun_servers(servers=_STUN_SERVERS):
     stun.stun_servers_list = tuple(servers)
 
 
-def get_NAT_status(stun_host=None):
+def get_nat_status(stun_host=None):
     """
     Given a server hostname, initiate a STUN request to it;
     and return the response in the form of a dict.
@@ -74,8 +74,8 @@ def get_my_ip(ip_site=IP_DETECT_SITE):
     return None
 
 
-def is_ipv6_address(ip):
-    return IPy.IP(ip).version() == 6
+def is_ipv6_address(ip_address):
+    return IPy.IP(ip_address).version() == 6
 
 
 def get_peer_url(address, port, protocol='tcp'):
@@ -108,10 +108,10 @@ def get_peer_url(address, port, protocol='tcp'):
 
 def test_stun_servers(servers=_STUN_SERVERS):
     """Check responses of the listed STUN servers."""
-    for s in servers:
-        print 'Probing', s, '...',
+    for server in servers:
+        print 'Probing', server, '...',
         sys.stdout.flush()
-        status = get_NAT_status(s)
+        status = get_nat_status(server)
         if status['external_ip'] is None or status['external_port'] is None:
             print 'FAIL'
         else:
@@ -169,7 +169,7 @@ class PacketStats(object):
         self.num_packets_outgoing += 1
         self.total_bytes_outgoing += packet_size
 
-    def logStats(self, incoming=True, outgoing=True):
+    def log_stats(self, incoming=True, outgoing=True):
         if incoming:
             self.log.info("Incoming Packet Stats.")
             self.log.info("Total Incoming Packets:       %d", self.num_packets_incoming)
@@ -195,7 +195,7 @@ def count_outgoing_packet(data):
     if data is not None:
         stats.add_outgoing_packet(len(data))
     if stats.num_packets_outgoing % PACKET_STATS_LOGS_EVERY_N_PACKETS == 0:
-        stats.logStats(incoming=False)
+        stats.log_stats(incoming=False)
 
 def count_incoming_packet(packet):
     if PACKET_STATS is None:
@@ -208,7 +208,7 @@ def count_incoming_packet(packet):
         else:
             stats.add_incoming_packet(len(packet))
     if stats.num_packets_incoming % PACKET_STATS_LOGS_EVERY_N_PACKETS == 0:
-        stats.logStats(outgoing=False)
+        stats.log_stats(outgoing=False)
 
 def main():
     test_stun_servers()

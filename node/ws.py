@@ -18,7 +18,7 @@ from bitcoin import (
 from tornado import iostream
 import tornado.websocket
 from twisted.internet import reactor
-from node import protocol, trust, constants
+from node import constants, protocol, trust
 from node.backuptool import BackupTool, Backup, BackupJSONEncoder
 import bitcoin
 
@@ -66,7 +66,7 @@ class ProtocolHandler(object):
             "query_page": self.client_query_page,
             "review": self.client_review,
             "order": self.client_order,
-            "search": self.client_query_network_for_products,
+            "search": self.client_query_network_products,
             "shout": self.client_shout,
             "get_notaries": self.client_get_notaries,
             "add_trusted_notary": self.client_add_trusted_notary,
@@ -456,12 +456,12 @@ class ProtocolHandler(object):
         query_id = random.randint(0, 1000000)
         self.timeouts.append(query_id)
 
-        def cb(msg, query_id):
+        def log_callback(msg, query_id):
             self.log.info('Received a query page response: %s', query_id)
 
         self.market.query_page(
             find_guid,
-            lambda msg, query_id=query_id: cb(msg, query_id)
+            lambda msg, query_id=query_id: log_callback(msg, query_id)
         )
 
     def client_query_orders(self, socket_handler=None, msg=None):
@@ -543,9 +543,15 @@ class ProtocolHandler(object):
         url = 'https://blockchain.info/ticker'
 
         def get_ticker():
-            usock = urllib2.urlopen(url)
-            data = usock.read()
-            usock.close()
+
+            try:
+                usock = urllib2.urlopen(url)
+                data = usock.read()
+                usock.close()
+            except Exception as usock_exception:
+                self.log.error('Cannot retrieve ticker info: %s', usock_exception.message)
+                return
+
             self.send_to_client(None, {
                 'type': 'btc_ticker',
                 'data': data
@@ -853,9 +859,9 @@ class ProtocolHandler(object):
                 buyer_signatures = []
                 self.log.debug('merchant tx %s, merchant script: %s', order['merchant_tx'],
                                order['merchant_script'])
-                for x in range(0, len(inputs)):
-                    ms = multisign(order['merchant_tx'], x, order['merchant_script'], private_key)
-                    buyer_signatures.append(ms)
+                for i in range(0, len(inputs)):
+                    signed_input = multisign(order['merchant_tx'], i, order['merchant_script'], private_key)
+                    buyer_signatures.append(signed_input)
 
                 merchant_sigs = order['merchant_sigs']
                 merchant_sigs = merchant_sigs.encode('ascii')
@@ -869,9 +875,9 @@ class ProtocolHandler(object):
 
                 transaction = order['merchant_tx']
 
-                for x in range(0, len(inputs)):
+                for i in range(0, len(inputs)):
                     transaction = apply_multisignatures(
-                        transaction, x, order['merchant_script'], merchant_sigs[x], buyer_signatures[x]
+                        transaction, i, order['merchant_script'], merchant_sigs[i], buyer_signatures[i]
                     )
 
                 self.log.debug('Broadcast TX to network: %s', transaction)
@@ -995,9 +1001,9 @@ class ProtocolHandler(object):
                     print 'seller sig', mltsgn
                     seller_signatures.append(mltsgn)
 
-                for x in range(0, len(inputs)):
+                for i in range(0, len(inputs)):
                     transaction = apply_multisignatures(
-                        transaction, x, script, seller_signatures[x], msg['signatures'][x]
+                        transaction, i, script, seller_signatures[i], msg['signatures'][i]
                     )
 
                 print 'FINAL SCRIPT: %s' % transaction
@@ -1044,7 +1050,7 @@ class ProtocolHandler(object):
             msg['key'], callback=self.on_node_search_value
         )
 
-    def client_query_network_for_products(self, socket_handler, msg):
+    def client_query_network_products(self, socket_handler, msg):
 
         self.log.info("Querying for Contracts %s", msg)
 
@@ -1071,13 +1077,13 @@ class ProtocolHandler(object):
         and all files created by the app, have to be outside, usually at
         ~/Library/Application Support/OpenBazaar/backups ??
         """
-        def on_backup_done(backupPath):
-            self.log.info('Backup successfully created at %s', backupPath)
+        def on_backup_done(backup_path):
+            self.log.info('Backup successfully created at %s', backup_path)
             self.send_to_client(None,
                                 {
                                     'type': 'create_backup_result',
                                     'result': 'success',
-                                    'detail': backupPath,
+                                    'detail': backup_path,
                                     'v': constants.VERSION
                                 })
 
@@ -1120,7 +1126,7 @@ class ProtocolHandler(object):
         self.log.debug('Found Contracts: %s', type(results))
         self.log.debug(results)
 
-        # if type(results) is not 'dict':
+        # if not isinstance(results, dict):
         #     self.log.error('Legacy node returned list of close nodes.')
         #     return
 
@@ -1374,7 +1380,7 @@ class ProtocolHandler(object):
                 peer.reachable = True
                 reachable_count += 1
 
-            if hasattr(peer, 'hostname') and peer.guid:
+            if hasattr(peer, 'hostname') and peer.guid[:4] != 'seed':
                 peer_item = {
                     'hostname': peer.hostname,
                     'port': peer.port

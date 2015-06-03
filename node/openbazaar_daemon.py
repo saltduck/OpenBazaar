@@ -94,7 +94,7 @@ class OpenBazaarContext(object):
         self.disable_sqlite_crypt = disable_sqlite_crypt
         self.enable_ip_checker = enable_ip_checker
 
-        # to deduct up-time, and (TODO) average up-time
+        # to deduce up-time, and (TODO) average up-time
         # time stamp in (non-local) Coordinated Universal Time format.
         self.started_utc_timestamp = int(time.time())
 
@@ -197,6 +197,7 @@ class MarketApplication(tornado.web.Application):
     def __init__(self, ob_ctx):
         self.shutdown_mutex = Lock()
         self.ob_ctx = ob_ctx
+        self.loop = tornado.ioloop.IOLoop.instance()
         db_connection = Obdb(ob_ctx.db_path, ob_ctx.disable_sqlite_crypt)
         self.transport = CryptoTransportLayer(ob_ctx, db_connection)
         self.market = Market(self.transport, db_connection)
@@ -290,7 +291,7 @@ class MarketApplication(tornado.web.Application):
                     "MarketApplication.clean_upnp_port_mapping() failed!"
                 )
 
-    def shutdown(self, x=None, y=None):
+    def shutdown(self, x_param=None, y_param=None):
         self.shutdown_mutex.acquire()
         print "MarketApplication.shutdown!"
         log = logging.getLogger(
@@ -314,7 +315,7 @@ class MarketApplication(tornado.web.Application):
             )
 
         self.cleanup_upnp_port_mapping()
-        tornado.ioloop.IOLoop.instance().stop()
+        self.loop.stop()
 
         self.transport.shutdown()
         self.shutdown_mutex.release()
@@ -369,6 +370,7 @@ def attempt_browser_open(ob_ctx):
 def setup_signal_handlers(application):
     try:
         signal.signal(signal.SIGTERM, application.shutdown)
+        signal.signal(signal.SIGINT, application.shutdown)
     except ValueError:
         pass
 

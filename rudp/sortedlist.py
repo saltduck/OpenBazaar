@@ -12,7 +12,7 @@ class SortedList(deque):
     def __init__(self):
         deque.__init__(self)
 
-    def insertSorted(self, obj):
+    def insert_sorted(self, obj):
         index = bisect.bisect_left(self, obj)
         self.rotate(-index)
         self.appendleft(obj)

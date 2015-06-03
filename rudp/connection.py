@@ -14,19 +14,19 @@ class Connection(object):
         )
         self.log.info('Init Connection')
 
-        self.ee = EventEmitter()
+        self.event_emitter = EventEmitter()
 
         self._sender = Sender(packet_sender)
         self._receiver = Receiver(packet_sender)
 
         # pylint: disable=unused-variable
-        @self._receiver.ee.on('data')
+        @self._receiver.event_emitter.on('data')
         def on_data(data):
             self.log.debug('Received IncomingMessage: %s', data)
-            self.ee.emit('data', data)
+            self.event_emitter.emit('data', data)
 
         # pylint: disable=unused-variable
-        @self._receiver.ee.on('_reset')
+        @self._receiver.event_emitter.on('_reset')
         def on_reset(data):
             self.log.debug('Received reset message')
             #self._sender = Sender(packet_sender)
@@ -38,7 +38,7 @@ class Connection(object):
 
     def receive(self, packet):
         if packet._acknowledgement:
-            self._sender.verify_acknowledgement(packet._sequenceNumber)
+            self._sender.verify_acknowledgement(packet._sequence_number)
         else:
             self._receiver.receive(packet)
         count_incoming_packet(packet)

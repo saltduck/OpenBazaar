@@ -38,7 +38,7 @@ class LinkedList(object):
         self._child_node = None
         self._current_node = None
 
-    def resetIndex(self):
+    def reset_index(self):
         self._current_node = self._child_node
 
     def seek(self):
@@ -51,16 +51,16 @@ class LinkedList(object):
         self._current_node = self._current_node._child_node
         return True
 
-    def currentValue(self):
+    def current_value(self):
         if not self._current_node:
             raise LookupError('There aren\'t any nodes on the list.')
 
         return self._current_node.value
 
-    def hasValue(self):
+    def has_value(self):
         return bool(self._child_node)
 
-    def nextValue(self):
+    def next_value(self):
         if not self._current_node:
             raise LookupError('There aren\'t any nodes on the list.')
         elif not self._current_node._child_node:
@@ -68,37 +68,37 @@ class LinkedList(object):
 
         return self._current_node._child_node.value
 
-    def hasNext(self):
+    def has_next(self):
         return bool(self._current_node._child_node)
 
-    def toArray(self):
-        return self._toArray(self, [])
+    def to_array(self):
+        return self._to_array(self, [])
 
-    def toArrayValue(self):
-        return self._toArray(self, [], True)
+    def to_array_value(self):
+        return self._to_array(self, [], True)
 
-    def _toArray(self, node, accum, value=False):
+    def _to_array(self, node, accum, value=False):
         if not node._child_node:
             return accum
         if value and node._child_node:
-            return self._toArray(node._child_node, accum + [node._child_node.value])
+            return self._to_array(node._child_node, accum + [node._child_node.value])
         else:
-            return self._toArray(node._child_node, accum + [node._child_node.value])
+            return self._to_array(node._child_node, accum + [node._child_node.value])
 
-    def _insert(self, parentNode, obj):
-        if not parentNode._child_node:
-            parentNode._child_node = Node(obj)
+    def _insert(self, parent_node, obj):
+        if not parent_node._child_node:
+            parent_node._child_node = Node(obj)
             return LinkedList.insertion_result.get('INSERTED')
 
-        order = self._order_by(obj, parentNode._child_node.value)
+        order = self._order_by(obj, parent_node._child_node.value)
 
         if order <= -1:
             node = Node(obj)
-            node._child_node = parentNode._child_node
-            parentNode._child_node = node
+            node._child_node = parent_node._child_node
+            parent_node._child_node = node
             return LinkedList.insertion_result.get('INSERTED')
         elif order >= 1:
-            return self._insert(parentNode._child_node, obj)
+            return self._insert(parent_node._child_node, obj)
         elif order == 0:
             return LinkedList.insertion_result.get('EXISTS')
 

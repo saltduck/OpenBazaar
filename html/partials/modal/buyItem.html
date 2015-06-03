@@ -19,7 +19,7 @@
                                                                style="font-size:20px;font-weight:normal;">{{listing.contract_body.Contract.item_price}} BTC</span>
                 </h3>
 
-            <p style="background-color: #efefef;padding:10px;">{{listing.item_desc}}</p>
+            <p style="white-space: pre-wrap; background-color: #efefef;padding:10px;">{{listing.item_desc}}</p>
 
             <h4>More Information</h4>
             <ul>
@@ -49,17 +49,17 @@
             <div class="row">
             	<div class="col-lg-4 col-sm-4 col-xs-12">
 		            <div id="product-images" data-ng-show="listing.item_remote_images" style="padding:5x">
-		                <img class="img-thumbnail" src="{{listing.item_remote_images[0]}}" style="max-width: 100%; margin-left: auto; margin-right: auto"/>
+		                <img class="img-thumbnail" data-ng-src="{{listing.item_remote_images[0]}}" style="max-width: 100%; margin-left: auto; margin-right: auto"/>
 		            </div>
 	            </div>
             	<div class="col-lg-4 col-sm-4 col-xs-12">
 		            <div id="product-images" data-ng-show="listing.item_remote_images" style="padding:5x">
-		                <img class="img-thumbnail" src="{{listing.item_remote_images[1]}}" style="max-width: 100%; margin-left: auto; margin-right: auto"/>
+		                <img class="img-thumbnail" data-ng-src="{{listing.item_remote_images[1]}}" style="max-width: 100%; margin-left: auto; margin-right: auto"/>
 		            </div>
 	            </div>
             	<div class="col-lg-4 col-sm-4 col-xs-12">
 		            <div id="product-images" data-ng-show="listing.item_remote_images" style="padding:5x">
-		                <img class="img-thumbnail" src="{{listing.item_remote_images[2]}}" style="max-width: 100%; margin-left: auto; margin-right: auto"/>
+		                <img class="img-thumbnail" data-ng-src="{{listing.item_remote_images[2]}}" style="max-width: 100%; margin-left: auto; margin-right: auto"/>
 		            </div>
 	            </div>
 	        </div>
@@ -162,9 +162,9 @@
 
             <h4>Refund Information</h4>
 
-            <div class="form-group">
-            <label for="inputRefundAddress">Bitcoin address for refunds:</label>
-            <input type="text" id="inputRefundAddress" name="inputRefundAddress" class="form-control col-sm-4" placeholder="Bitcoin Address" data-ng-model="order.buyerRefundAddress" value="{{myself.settings.refundAddress}}"/>
+            <div class="form-group {{!order.buyerRefundAddress ? 'has-error' : ''}}">
+                <label for="inputRefundAddress">Bitcoin address for refunds:</label>
+                <input type="text" id="inputRefundAddress" name="inputRefundAddress" validate-bitcoin-address required class="form-control col-sm-4" data-ng-model="order.buyerRefundAddress" value="{{myself.settings.refundAddress}}"/>
             </div>
 
             <!-- Hidden form fields for item -->
@@ -184,7 +184,7 @@
                 add a
                 notary or
                 arbiter on the <strong>Settings Page</strong> or <a
-                        href="https://github.com/OpenBazaar/OpenBazaar/wiki/Contracts-and-Listings" target="_blank">find
+                        href="https://github.com/OpenBazaar/OpenBazaar/wiki/04.-Contracts-and-Listings" target="_blank">find
                     out
                     more here</a>.
             </div>
@@ -244,7 +244,7 @@
        type="button">Order Details</a>
 
     <a class="btn btn-default" ng-show="order.step2" ng-click="gotoStep1()" type="button">Back</a>
-    <a class="btn btn-success" ng-show="order.step2" ng-click="gotoStep3()" type="button">Choose a Notary</a>
+    <a class="btn btn-success" ng-show="order.step2" data-ng-disabled="!order.buyerRefundAddress" ng-click="gotoStep3()" type="button">Choose a Notary</a>
 
     <a class="btn btn-default" ng-show="order.step3" ng-click="gotoStep2()" type="button">Back</a>
     <a class="btn btn-success" ng-show="order.step3" ng-click="submitOrder()" type="button">Submit Order</a>

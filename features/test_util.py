@@ -27,11 +27,11 @@ def node_uri(node_index):
 def set_store_description(i):
     ws_send(i, 'update_settings',
             {'settings':
-             {'storeDescription': storeDescription(i),
+             {'storeDescription': store_description(i),
               'nickname': nickname(i)}})
 
 
-def storeDescription(i):
+def store_description(i):
     return 'store %s' % i
 
 

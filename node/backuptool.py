@@ -5,61 +5,60 @@ import json
 
 
 class BackupTool(object):
-    # pylint: disable=abstract-class-not-used
     """Simple backup utility."""
 
     def __init__(self):
         pass
 
     @staticmethod
-    def backup(openbazaarInstallationPath,
-               backupFolderPath,
-               onSucessCallback=None,
-               onErrorCallback=None):
+    def backup(openbazaar_installation_path,
+               backup_folder_path,
+               on_success_callback=None,
+               on_error_callback=None):
         """
         Creates an 'openbazaar-YYYY-MM-DD-hh-mm-ss.tar.gz' file
         inside the html/backups/ folder.
 
-        @param openbazaarInstallationPath: str
+        @param openbazaar_installation_path: str
             The path to OpenBazaar's installation folder,
             where the db/ folder lives.
 
-        @param backupFolderPath: str
+        @param backup_folder_path: str
             The folder where the backup file will reside.
 
         Optional callback functions can be passed:
-        @param onSucessCallback(backupFilePath: str)
-        @param onErrorCallback(errorMessage: str)
+        @param on_success_callback(backupFilePath: str)
+        @param on_error_callback(errorMessage: str)
         """
 
-        dateTime = time.strftime('%Y-%h-%d-%H-%M-%S')
-        outputFilePath = os.path.join(
-            backupFolderPath,
-            "openbazaar-%s.tar.gz" % dateTime
+        date_time = time.strftime('%Y-%h-%d-%H-%M-%S')
+        output_file_path = os.path.join(
+            backup_folder_path,
+            "openbazaar-%s.tar.gz" % date_time
         )
 
         # Create the folder for the backup, if it doesn't exist.
         try:
-            os.makedirs(backupFolderPath)
+            os.makedirs(backup_folder_path)
         except os.error:
             pass
 
-        db_folder = os.path.join(openbazaarInstallationPath, "db")
+        db_folder = os.path.join(openbazaar_installation_path, "db")
         try:
-            with tarfile.open(outputFilePath, "w:gz") as tar:
+            with tarfile.open(output_file_path, "w:gz") as tar:
                 tar.add(db_folder, arcname=os.path.basename(db_folder))
-        except tarfile.TarError as e:
+        except tarfile.TarError as exc:
             # TODO: Install proper error logging.
-            print "Error while backing up to:", outputFilePath
-            if onErrorCallback is not None:
-                onErrorCallback(e)
+            print "Error while backing up to:", output_file_path
+            if on_error_callback is not None:
+                on_error_callback(exc)
             return
 
-        if onSucessCallback is not None:
-            onSucessCallback(outputFilePath)
+        if on_success_callback is not None:
+            on_success_callback(output_file_path)
 
     @staticmethod
-    def restore(backupTarFilepath):
+    def restore(backup_tar_filepath):
         raise NotImplementedError
 
     @staticmethod

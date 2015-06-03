@@ -16,7 +16,7 @@
                     <div id="mark_paid_panel" data-ng-show="Market.modalOrder.state == 'Need to Pay'" class="alert alert-warning" role="alert">
                         <div class="row">
 
-                            <div style="float:left;margin:10px;"><img ng-src="{{Market.modalOrder.qrcode}}" width="150" height="150"/></div>
+                            <div style="float:left;margin:10px;"><img data-ng-src="{{Market.modalOrder.qrcode}}" width="150" height="150"/></div>
                             <div style="margin:10px;">You need to send <strong>&#3647;{{Market.modalOrder.total_price}}</strong> to the payment address <strong>{{Market.modalOrder.address}}</strong> and mark this order as paid before the merchant ships.
 
                                  <p style="margin:10px 0">So far there is <strong>&#3647;{{Market.modalOrder.payment_amount}}</strong> in the address</p>
@@ -45,7 +45,7 @@
                                 <strong>Where would you like payment sent to? </strong>
                             </div>
                             <div class="col-sm-7 {{releasePaymentForm.bitcoinPaymentAddress.$invalid ? 'has-error' : ''}}">
-                                <input type="text" required class="form-control text" name="bitcoinPaymentAddress" data-ng-model="Market.modalOrder.paymentAddress" placeholder="Enter a Bitcoin address"/>
+                                <input type="text" required validate-bitcoin-address class="form-control text" name="bitcoinPaymentAddress" data-ng-model="Market.modalOrder.paymentAddress" placeholder="Enter a Bitcoin address"/>
                             </div>
                                 </div>
                             <div class="row" style="margin-top:10px;">
@@ -111,7 +111,7 @@
           <div class="media-body" style="margin-bottom:10px;">{{Market.modalOrder.item_desc}}</div>
           <div data-ng-show="Market.modalOrder.item_images.length > 0">
           <a class="pull-left" href="{{(Market.modalOrder.item_images[0] != '') ? Market.modalOrder.item_images[0] : 'img/no-photo.png'}}" target="_blank">
-            <img class="media-object" ng-src="{{(Market.modalOrder.item_images[0] != '') ? Market.modalOrder.item_images[0] : 'img/no-photo.png'}}" alt="{{Market.modalOrder.item_title}}" style="width:100%;max-width:350px;">
+            <img class="media-object" data-ng-src="{{(Market.modalOrder.item_images[0] != '') ? Market.modalOrder.item_images[0] : 'img/no-photo.png'}}" alt="{{Market.modalOrder.item_title}}" style="width:100%;max-width:350px;">
           </a>
           </div>
 

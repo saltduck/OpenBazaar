@@ -3,6 +3,13 @@ import logging
 from pprint import pformat
 from pyee import EventEmitter
 from threading import Thread
+from node.constants import VERSION, MSG_PING_ID, PEERCONNECTION_NO_RESPONSE_DELAY_IN_SECONDS, \
+    PEERCONNECTION_PINGER_TIMEOUT_IN_SECONDS, PEERCONNECTION_PING_TASK_INTERVAL_IN_SECONDS, \
+    PEERCONNECTION_SENDING_OUT_DELAY_IN_SECONDS, PEERLISTENER_RECV_FROM_BUFFER_SIZE, \
+    MSG_PING_ID_SIZE, MSG_PONG_ID_SIZE, MSG_PONG_ID, MSG_SEND_RELAY_PING_ID_SIZE, MSG_SEND_RELAY_PING_ID, \
+    MSG_RELAY_PING_ID_SIZE, MSG_RELAY_PING_ID, \
+    MSG_SEND_RELAY_PONG_ID_SIZE, MSG_SEND_RELAY_PONG_ID, MSG_HEARTBEAT_ID_SIZE, MSG_HEARTBEAT_ID, \
+    MSG_RELAYTO_ID_SIZE, MSG_RELAYTO_ID, MSG_RELAY_ID_SIZE, MSG_RELAY_ID
 from node.network_util import count_incoming_packet, count_outgoing_packet
 import sys
 import time
@@ -10,7 +17,7 @@ import time
 import obelisk
 import socket
 
-from node import constants, network_util
+from node import network_util
 from node.crypto_util import Cryptor
 from node.guid import GUIDMixin
 from rudp.connection import Connection
@@ -26,13 +33,15 @@ class PeerConnection(GUIDMixin, object):
 
         self.transport = transport
 
+        self.loop = ioloop.IOLoop.current()
+
         self.log = logging.getLogger(
             '[%s] %s' % (self.transport.market_id, self.__class__.__name__)
         )
 
         self.log.info('Created a peer connection object')
 
-        self.ee = EventEmitter()
+        self.event_emitter = EventEmitter()
         self.sock = peer_socket
         self.hostname = hostname
         self.port = port
@@ -69,7 +78,7 @@ class PeerConnection(GUIDMixin, object):
                     'port': self.transport.port,
                     'senderNick': self.transport.nickname,
                     'avatar_url': self.transport.avatar_url,
-                    'v': constants.VERSION
+                    'v': VERSION
                 }
 
                 self.log.debug('Hello Content: %s', hello_msg)
@@ -95,7 +104,7 @@ class PeerConnection(GUIDMixin, object):
 
                 self.pinging = False
 
-            ioloop.IOLoop.instance().call_later(2, no_response)
+            self.loop.call_later(PEERCONNECTION_NO_RESPONSE_DELAY_IN_SECONDS, no_response)
 
         self.seed = False
         self.punching = False
@@ -104,14 +113,14 @@ class PeerConnection(GUIDMixin, object):
         def pinger():
             self.log.debug('Pinging: %s', self.guid)
 
-            if time.time() - self.last_reached <= 30:
+            if time.time() - self.last_reached <= PEERCONNECTION_PINGER_TIMEOUT_IN_SECONDS:
                 self.reachable = True
                 self.send_ping()
+                self.loop.call_later(PEERCONNECTION_PING_TASK_INTERVAL_IN_SECONDS, pinger)
             else:
-                self.send_ping()
                 self.reachable = False
-                if self.guid:
-                    self.log.error('Peer not responding. Removing.')
+                # if self.guid:
+                    # self.log.error('Peer not responding. Removing.')
                     # TODO: Remove peers who are malicious/unresponsive
                     # self.transport.dht.remove_peer(self.guid)
 
@@ -121,19 +130,18 @@ class PeerConnection(GUIDMixin, object):
 
                     # yappi.get_thread_stats().print_all()
 
-        self.ping_task = ioloop.PeriodicCallback(pinger, 5000, io_loop=ioloop.IOLoop.instance())
-        self.ping_task.start()
+        self.loop.call_later(PEERCONNECTION_PING_TASK_INTERVAL_IN_SECONDS, pinger)
 
     def setup_emitters(self):
         self.log.debug('Setting up emitters')
-        self.ee = EventEmitter()
+        self.event_emitter = EventEmitter()
 
-        @self._rudp_connection._sender.ee.on('timeout')
+        @self._rudp_connection._sender.event_emitter.on('timeout')
         def on_timeout(data):  # pylint: disable=unused-variable
             self.log.debug('Node Sender Timed Out')
             # self.transport.dht.remove_peer(self.guid)
 
-        @self._rudp_connection.ee.on('data')
+        @self._rudp_connection.event_emitter.on('data')
         def handle_recv(msg):  # pylint: disable=unused-variable
 
             self.log.debug('Got the whole message: %s', msg.get('payload'))
@@ -144,26 +152,26 @@ class PeerConnection(GUIDMixin, object):
                     payload = json.loads(msg.get('payload'))
                     self.transport.listener.on_raw_message(payload)
                     return
-                except Exception as e:
-                    self.log.debug('Problem with serializing: %s', e)
+                except Exception as exc:
+                    self.log.debug('Problem with serializing: %s', exc)
             else:
                 try:
                     payload = msg.get('payload').decode('hex')
                     self.transport.listener.on_raw_message(payload)
-                except Exception as e:
-                    self.log.debug('not yet %s', e)
+                except Exception as exc:
+                    self.log.debug('not yet %s', exc)
                     self.transport.listener.on_raw_message(msg.get('payload'))
 
     def send_ping(self):
-        self.sock.sendto('ping', (self.hostname, self.port))
-        count_outgoing_packet('ping')
+        self.sock.sendto(MSG_PING_ID, (self.hostname, self.port))
+        count_outgoing_packet(MSG_PING_ID)
         return True
 
     def send_relayed_ping(self):
         self.log.debug('Sending Relay Ping to: %s', self)
-        for x in self.transport.dht.active_peers:
-            if x.hostname == 'seed2.openbazaar.org' or x.hostname == '205.186.156.31':
-                self.sock.sendto('send_relay_ping %s' % self.guid, (x.hostname, x.port))
+        for active_peer in self.transport.dht.active_peers:
+            if active_peer.hostname == 'seed2.openbazaar.org' or active_peer.hostname == '205.186.156.31':
+                self.sock.sendto('send_relay_ping %s' % self.guid, (active_peer.hostname, active_peer.port))
                 count_outgoing_packet('send_relay_ping %s' % self.guid)
         return True
 
@@ -223,7 +231,8 @@ class PeerConnection(GUIDMixin, object):
                         self.send_to_rudp(serialized)
                         return
 
-            ioloop.IOLoop.instance().call_later(5, sending_out)
+
+            self.loop.call_later(PEERCONNECTION_SENDING_OUT_DELAY_IN_SECONDS, sending_out)
 
         sending_out()
 
@@ -257,8 +266,8 @@ class CryptoPeerConnection(PeerConnection):
                        self.guid, self.hostname, self.port, self.pub, self.reachable, self.nat_type,
                        self.relaying, self.avatar_url, last_reached
                    )
-        except AttributeError as e:
-            self.log.error('Attribute is missing: %s', e)
+        except AttributeError as exc:
+            self.log.error('Attribute is missing: %s', exc)
             return ''
 
     @staticmethod
@@ -295,7 +304,7 @@ class CryptoPeerConnection(PeerConnection):
         data['senderNick'] = self.transport.nickname
         data['avatar_url'] = self.transport.settings.get('avatar_url')
         data['senderNamecoin'] = self.transport.namecoin_id
-        data['v'] = constants.VERSION
+        data['v'] = VERSION
 
         # Sign cleartext data
         sig_data = json.dumps(data).encode('hex')
@@ -336,7 +345,7 @@ class PeerListener(GUIDMixin):
 
         self.log = logging.getLogger(self.__class__.__name__)
 
-        self.ee = EventEmitter()
+        self.event_emitter = EventEmitter()
 
     def set_ip_address(self, new_ip):
         self.hostname = new_ip
@@ -345,8 +354,8 @@ class PeerListener(GUIDMixin):
 
         try:
             self.listen()
-        except Exception as e:
-            self.log.error('[Requests] error: %s', e)
+        except Exception as exc:
+            self.log.error('[Requests] error: %s', exc)
 
     def set_ok_msg(self, ok_msg):
         self._ok_msg = ok_msg
@@ -375,45 +384,45 @@ class PeerListener(GUIDMixin):
             while self.is_listening:
 
                 try:
-                    data, addr = self.socket.recvfrom(2048)
+                    data, addr = self.socket.recvfrom(PEERLISTENER_RECV_FROM_BUFFER_SIZE)
                     self.log.debug('Got data from %s:%d: %s', addr[0], addr[1], data[:50])
                     count_incoming_packet(data)
 
-                    if data[:4] == 'ping':
+                    if data[:MSG_PING_ID_SIZE] == MSG_PING_ID:
                         self.socket.sendto('pong', (addr[0], addr[1]))
                         count_outgoing_packet('pong')
-                    elif data[:4] == 'pong':
-                        self.ee.emit('on_pong_message', (data, addr))
+                    elif data[:MSG_PONG_ID_SIZE] == MSG_PONG_ID:
+                        self.event_emitter.emit('on_pong_message', (data, addr))
 
-                    elif data[:15] == 'send_relay_ping':
-                        self.ee.emit('on_send_relay_ping', (data, addr))
+                    elif data[:MSG_SEND_RELAY_PING_ID_SIZE] == MSG_SEND_RELAY_PING_ID:
+                        self.event_emitter.emit('on_send_relay_ping', (data, addr))
 
-                    elif data[:10] == 'relay_ping':
+                    elif data[:MSG_RELAY_PING_ID_SIZE] == MSG_RELAY_PING_ID:
                         data = data.split(' ')
                         sender = self.guid
                         recipient = data[1]
                         self.socket.sendto('send_relay_pong %s %s' % (sender, recipient), (addr[0], addr[1]))
                         count_outgoing_packet('send_relay_pong %s %s' % (sender, recipient))
 
-                    elif data[:15] == 'send_relay_pong':
-                        self.ee.emit('on_send_relay_pong', (data, addr))
+                    elif data[:MSG_SEND_RELAY_PONG_ID_SIZE] == MSG_SEND_RELAY_PONG_ID:
+                        self.event_emitter.emit('on_send_relay_pong', (data, addr))
 
-                    elif data[:9] == 'heartbeat':
+                    elif data[:MSG_HEARTBEAT_ID_SIZE] == MSG_HEARTBEAT_ID:
                         self.log.debug('We just received a heartbeat.')
 
-                    elif data[:7] == 'relayto':
+                    elif data[:MSG_RELAYTO_ID_SIZE] == MSG_RELAYTO_ID:
                         self.log.debug('Relay To Packet')
-                        self.ee.emit('on_relayto', data)
+                        self.event_emitter.emit('on_relayto', data)
 
-                    elif data[:6] == 'relay ':
+                    elif data[:MSG_RELAY_ID_SIZE] == MSG_RELAY_ID:
                         self.log.debug('Relay Packet')
-                        self.ee.emit('on_message', (data, addr))
+                        self.event_emitter.emit('on_message', (data, addr))
 
                     else:
-                        self.ee.emit('on_message', (data, addr))
+                        self.event_emitter.emit('on_message', (data, addr))
 
-                except socket.timeout as e:
-                    err = e.args[0]
+                except socket.timeout as exc:
+                    err = exc.args[0]
 
                     if err == 'timed out':
                         time.sleep(0.5)
@@ -465,13 +474,13 @@ class CryptoPeerListener(PeerListener):
         :param message: serialized JSON
         :return: True if proper handshake message
         """
-        if type(message) is 'dict':
+        if isinstance(message, dict):
             return message.get('type')
 
         try:
             message = json.loads(message)
-        except (ValueError, TypeError) as e:
-            self.log.debug('Cannot deserialize the JSON: %s ', e)
+        except (ValueError, TypeError) as exc:
+            self.log.debug('Cannot deserialize the JSON: %s ', exc)
             return False
 
         return 'type' in message
@@ -505,7 +514,7 @@ class CryptoPeerListener(PeerListener):
             self.log.debugv('Callbacks not ready yet')
 
     def process_encrypted_message(self, encrypted_message):
-        if type(encrypted_message) is dict:
+        if isinstance(encrypted_message, dict):
             message = encrypted_message
         else:
             try:
@@ -527,11 +536,11 @@ class CryptoPeerListener(PeerListener):
                     message = json.loads(message)
                 else:
                     return
-            except RuntimeError as e:
-                self.log.error('Could not decrypt message properly %s', e)
+            except RuntimeError as exc:
+                self.log.error('Could not decrypt message properly %s', exc)
                 return False
-            except Exception as e:
-                self.log.error('Cannot unpack data: %s', e)
+            except Exception as exc:
+                self.log.error('Cannot unpack data: %s', exc)
                 return False
 
         return message

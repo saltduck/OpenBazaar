@@ -15,10 +15,10 @@ class TestPyellipticSymmetric(unittest.TestCase):
     def test_symmetric_one_pass(self):
         encrypt, decrypt = 1, 0
 
-        iv = ec.Cipher.gen_IV(self.ciphername)
+        gen_iv = ec.Cipher.gen_IV(self.ciphername)
         enc_cipher = ec.Cipher(
             self.secret_key,
-            iv,
+            gen_iv,
             encrypt,
             ciphername=self.ciphername
         )
@@ -38,7 +38,7 @@ class TestPyellipticSymmetric(unittest.TestCase):
 
         dec_cipher = ec.Cipher(
             self.secret_key,
-            iv,
+            gen_iv,
             decrypt,
             ciphername=self.ciphername
         )

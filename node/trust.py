@@ -6,17 +6,17 @@ from twisted.internet import reactor
 from dnschain import server as DNSChainServer
 from node import constants
 
-_log = logging.getLogger('trust')
+_LOG = logging.getLogger('trust')
 
 TESTNET = False
 
 
 def burnaddr_from_guid(guid_hex):
-    _log.debug("burnaddr_from_guid: %s", guid_hex)
+    _LOG.debug("burnaddr_from_guid: %s", guid_hex)
 
     prefix = '6f' if TESTNET else '00'
     guid_full_hex = prefix + guid_hex
-    _log.debug("GUID address on bitcoin net: %s", guid_full_hex)
+    _LOG.debug("GUID address on bitcoin net: %s", guid_full_hex)
 
     # Perturbate GUID to ensure unspendability through
     # near-collision resistance of SHA256 by flipping
@@ -24,19 +24,19 @@ def burnaddr_from_guid(guid_hex):
     guid_full = guid_full_hex.decode('hex')
     guid_prt = guid_full[:-1] + chr(ord(guid_full[-1]) ^ 1)
     addr_prt = obelisk.bitcoin.EncodeBase58Check(guid_prt)
-    _log.debug("Perturbated bitcoin proof-of-burn address: %s", addr_prt)
+    _LOG.debug("Perturbated bitcoin proof-of-burn address: %s", addr_prt)
 
     return addr_prt
 
 
 def get_unspent(addr, callback):
-    _log.debug('get_unspent call')
+    _LOG.debug('get_unspent call')
 
     def _get_unspent():
         try:
             unspent = bitcoin.unspent(addr)
-        except Exception as e:
-            _log.debug('Error retrieving from Blockchain.info: %s', e)
+        except Exception as exc:
+            _LOG.debug('Error retrieving from Blockchain.info: %s', exc)
             callback(0)
             return
         total = sum(tx['value'] for tx in unspent)
@@ -53,11 +53,11 @@ def is_valid_namecoin(namecoin, guid):
         return False
 
     server = DNSChainServer.Server(constants.DNSCHAIN_SERVER_IP, "")
-    _log.info("Looking up namecoin id: %s", namecoin)
+    _LOG.info("Looking up namecoin id: %s", namecoin)
     try:
         data = server.lookup("id/" + namecoin)
     except (DNSChainServer.DataNotFound, DNSChainServer.MalformedJSON):
-        _log.info('Claimed remote namecoin id not found: %s', namecoin)
+        _LOG.info('Claimed remote namecoin id not found: %s', namecoin)
         return False
 
     return data.get('openbazaar') == guid

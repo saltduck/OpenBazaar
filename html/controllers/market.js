@@ -392,8 +392,9 @@ angular.module('app')
 
             $scope.parse_btc_ticker = function(msg) {
                 var data = JSON.parse(msg.data);
-                console.log('BTC Ticker', data.USD);
+                console.log('BTC Ticker', data);
                 $scope.last_price_usd = data.USD.last;
+                $scope.last_price_eur = data.EUR.last;
             };
 
             $scope.checkOrderCount = function() {

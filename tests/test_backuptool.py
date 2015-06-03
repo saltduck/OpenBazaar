@@ -23,8 +23,8 @@ class TestBackupTool(unittest.TestCase):
         )
 
         backup_path = backuptool.BackupTool.get_backup_path()
-        for x in backuptool.Backup.get_backups(backup_path):
-            print json.dumps(x, cls=backuptool.BackupJSONEncoder)
+        for backup in backuptool.Backup.get_backups(backup_path):
+            print json.dumps(backup, cls=backuptool.BackupJSONEncoder)
 
     @classmethod
     def tearDownClass(cls):

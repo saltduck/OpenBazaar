@@ -14,19 +14,19 @@ import sys
 
 
 # Get the folder of the exe file.
-exe_file = sys.argv[0]
-path = os.path.dirname(os.path.realpath(exe_file))
+EXE_FILE = sys.argv[0]
+PATH = os.path.dirname(os.path.realpath(EXE_FILE))
 
 # We need to add the folder of libeay32.dll and gpg.exe on the path.
 # This is needed for some packages to be able to detect them and function properly.
 # Modifying the PATH variable on the installed system is prone to errors
 # One example is if a x64 version of libeay32.dll is in PATH *before*
 # ours, OpenBazaar won't be able to load libeay32.dll and fail to run.
-os.environ["PATH"] = ";".join((path, r"%s\gpg\gpg" % path, os.environ["PATH"]))
+os.environ["PATH"] = ";".join((PATH, r"%s\gpg\gpg" % PATH, os.environ["PATH"]))
 
 # Add the full path to the egg file containing pycountry.
 # This needs to be done before importing node (which depends on pycountry)
-sys.path.append(os.path.join(path, "pycountry-1.8-py2.7.egg"))
+sys.path.append(os.path.join(PATH, "pycountry-1.8-py2.7.egg"))
 
 from node import openbazaar
 
@@ -34,8 +34,8 @@ def main():
 
     # Try to locate gpg.exe
     if not ctypes.util.find_library('gpg.exe'):
-        MessageBox = ctypes.windll.user32.MessageBoxA
-        MessageBox(
+        message_box = ctypes.windll.user32.MessageBoxA
+        message_box(
             None,
             'Gpg4win could not be detected.\n'
             'Please download and install gpg4win from http://gpg4win.org/ before continuing.',

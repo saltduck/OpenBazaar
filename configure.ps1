@@ -19,18 +19,16 @@ $python = "$pythonDir\python.exe"
 $pip = "$pythonDir\Scripts\pip.exe"
 $gpg = "$gnupgDir\pub\gpg.exe"
 $libeay = "$openSSLDir\bin\libeay32.dll"
-# TODO: remove this
-$sqlite = "$packagesDir\pysqlcipher\_sqlite.pyd"
 $miniupnpc = "$packagesDir\miniupnpc.pyd"
 
-$pythonUrl = "https://www.python.org/ftp/python/2.7.8/python-2.7.8.msi"
-$gpgUrl = "http://files.gpg4win.org/gpg4win-light-2.2.2.exe"
-$opensslUrl = "http://slproweb.com/download/Win32OpenSSL-1_0_1j.exe" #yes this is the official openssl for windows
+$pythonUrl = "https://www.python.org/ftp/python/2.7.9/python-2.7.9.msi"
+$gpgUrl = "http://files.gpg4win.org/gpg4win-light-2.2.4.exe"
+$opensslUrl = "https://slproweb.com/download/Win32OpenSSL-1_0_2a.exe" #yes this is the official openssl for windows
 $getpipUrl = "https://bootstrap.pypa.io/get-pip.py"
 $setupsDir =  "$bin\setups"
-$pythonSetup = "$setupsDir\python-2.7.8.msi"
-$gpgSetup = "$setupsDir\gpg4win-light-2.2.2.exe"
-$openSSLSetup = "$setupsDir\Win32OpenSSL-1_0_1i.exe"
+$pythonSetup = "$setupsDir\python-2.7.9.msi"
+$gpgSetup = "$setupsDir\gpg4win-light-2.2.4.exe"
+$openSSLSetup = "$setupsDir\Win32OpenSSL-1_0_2a.exe"
 $getPip = "$setupsDir\get-pip.py"
 
 $gpg4win_config = @"
@@ -92,7 +90,7 @@ Function Configure
     if((Test-Path $gpg) -eq 0)
     {
         DownloadFile "Downloading pgp4win installer..." $gpgSetup $gpgUrl
-        echo "Installing gpg4win 2.2.2"
+        echo "Installing gpg4win 2.2.4"
         $gpg4win_config | Out-File "$setupsDir\gpgInstall.ini"
         Start-Process $gpgSetup -Wait "/S /C=$configFile /D=$gnupgDir"
     }
@@ -112,7 +110,6 @@ Function Configure
 
     Start-Process $pip -Wait  -NoNewWindow "install http://sourceforge.net/projects/py2exe/files/latest/download?source=files"
     Start-Process $pip -Wait  -NoNewWindow "install py2exe2msi"
-    Start-Process $pip -Wait  -NoNewWindow "install https://github.com/yagoulas/pysqlcipher/zipball/msvc-build"
     Start-Process $pip -Wait  -NoNewWindow "install https://github.com/yagoulas/miniupnp/zipball/msvc_miniupnpc"
     Start-Process $pip -Wait  -NoNewWindow "install -r requirements.txt"
 }
