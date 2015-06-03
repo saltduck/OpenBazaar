@@ -3,7 +3,7 @@
 echo '.: Checking for newlines at EOFs...'
 count=0;
 errored=0;
-for file in $(find . -not -path './env/*' -not -path './pybitmessage/*' \
+for file in $(find . -not -path './env/*' \
     -and '(' -name '*.html' -o -name '*.js' ')' -not -name '*.min.js' \
     | grep -v bower_components); do
     if [ "$(tail -c1 "$file")" != '' ]; then
