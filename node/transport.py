@@ -6,7 +6,6 @@ from pprint import pformat
 import random
 import sys
 import traceback
-import xmlrpclib
 import time
 import gnupg
 import obelisk
@@ -86,11 +85,6 @@ class CryptoTransportLayer(TransportLayer):
         requests_log.setLevel(logging.WARNING)
 
         self.db_connection = db_connection
-
-        self.bitmessage_api = None
-        if (ob_ctx.bm_user, ob_ctx.bm_pass, ob_ctx.bm_port) != (None, None, -1):
-            if not self._connect_to_bitmessage():
-                self.log.info('Bitmessage not installed or started')
 
         self.market_id = ob_ctx.market_id
         self.nick_mapping = {}
@@ -384,33 +378,6 @@ class CryptoTransportLayer(TransportLayer):
                 "nickname": nickname,
                 "market_id": self.market_id
             })
-
-    def _connect_to_bitmessage(self):
-        # Get bitmessage going
-        # First, try to find a local instance
-        result = False
-        bm_user = self.ob_ctx.bm_user
-        bm_pass = self.ob_ctx.bm_pass
-        bm_port = self.ob_ctx.bm_port
-        try:
-            self.log.info(
-                '[_connect_to_bitmessage] Connecting to Bitmessage on port %s',
-                bm_port
-            )
-            self.bitmessage_api = xmlrpclib.ServerProxy(
-                "http://{}:{}@localhost:{}/".format(bm_user, bm_pass, bm_port),
-                verbose=0
-            )
-            result = self.bitmessage_api.add(2, 3)
-            self.log.info(
-                "[_connect_to_bitmessage] Bitmessage API is live: %s",
-                result
-            )
-        # If we failed, fall back to starting our own
-        except Exception as exc:
-            self.log.info("Failed to connect to bitmessage instance: %s", exc)
-            self.bitmessage_api = None
-        return result
 
     def validate_on_goodbye(self, msg):
         self.log.debug('Validating goodbye message.')
@@ -770,18 +737,6 @@ class CryptoTransportLayer(TransportLayer):
 
         self.guid = self.settings.get('guid', '')
         self.sin = self.settings.get('sin', '')
-        self.bitmessage = self.settings.get('bitmessage', '')
-
-        if not self.settings.get('bitmessage'):
-            # Generate Bitmessage address
-            if self.bitmessage_api is not None:
-                self._generate_new_bitmessage_addr()
-
-        # In case user wants to override with command line passed bitmessage values
-        if self.ob_ctx.bm_user is not None and \
-           self.ob_ctx.bm_pass is not None and \
-           self.ob_ctx.bm_port is not None:
-            self._connect_to_bitmessage()
 
     def _setup_guid(self):
         # GUIDs should be the pubkey signed with privkey then
@@ -834,18 +789,6 @@ class CryptoTransportLayer(TransportLayer):
         }
         self.db_connection.update_entries("settings", new_settings, {"market_id": self.market_id})
         self.settings.update(new_settings)
-
-    def _generate_new_bitmessage_addr(self):
-        # Use the guid generated previously as the key
-        self.bitmessage = self.bitmessage_api.createRandomAddress(
-            self.guid.encode('base64'),
-            False,
-            1.05,
-            1.1111
-        )
-        newsettings = {"bitmessage": self.bitmessage}
-        self.db_connection.update_entries("settings", newsettings, {"market_id": self.market_id})
-        self.settings.update(newsettings)
 
     def join_network(self, seeds=None, callback=None):
         if not seeds:
@@ -1012,16 +955,7 @@ class CryptoTransportLayer(TransportLayer):
         """
         self.dht.iterative_store(*args, **kwargs)
 
+    # pylint: disable=R0201
     def shutdown(self):
         print "CryptoTransportLayer.shutdown()!"
         print "Notice: explicit DHT Shutdown not implemented."
-
-        try:
-            if self.bitmessage_api is not None:
-                self.bitmessage_api.close()
-        except Exception as exc:
-            # It might not even be open; we can't do much more on our
-            # way out if exception is thrown here.
-            self.log.error(
-                "Could not shutdown bitmessage_api's ServerProxy: %s", exc.message
-            )

@@ -78,8 +78,6 @@ class ProtocolHandler(object):
             "query_orders": self.client_query_orders,
             "query_contracts": self.client_query_contracts,
             "stop_server": self.client_stop_server,
-            "query_messages": self.client_query_messages,
-            "send_message": self.client_send_message,
             "send_inbox_message": self.client_send_inbox_message,
             "get_inbox_messages": self.client_get_inbox_messages,
             "get_inbox_sent_messages": self.client_get_inbox_sent_messages,
@@ -503,23 +501,6 @@ class ProtocolHandler(object):
             "type": "contracts",
             "contracts": contracts
         })
-
-    def client_query_messages(self, socket_handler, msg):
-
-        self.log.info("Querying for Messages")
-
-        # Query bitmessage for messages
-        messages = self.market.get_messages()
-        self.log.info('Bitmessages: %s', messages)
-
-        self.send_to_client(None, {"type": "messages", "messages": messages})
-
-    def client_send_message(self, socket_handler, msg):
-
-        self.log.info("Sending message")
-
-        # Send message with market's bitmessage
-        self.market.send_message(msg)
 
     def client_send_inbox_message(self, socket_handler, msg):
 
