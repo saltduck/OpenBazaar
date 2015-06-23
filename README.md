@@ -4,7 +4,7 @@
 [![Dev Build Status](https://travis-ci.org/OpenBazaar/OpenBazaar.svg?branch=develop)](https://travis-ci.org/OpenBazaar/OpenBazaar)
 [![Coverage Status](https://coveralls.io/repos/OpenBazaar/OpenBazaar/badge.png)](https://coveralls.io/r/OpenBazaar/OpenBazaar)
 [![Stories in Ready](https://badge.waffle.io/OpenBazaar/OpenBazaar.svg?label=ready&title=Ready)](http://waffle.io/OpenBazaar/OpenBazaar)
-[![Slack Status](https://openbazaar-slackin-drwasho.herokuapp.com/badge.svg)](https://openbazaar-slackin-drwasho.herokuapp.com/slackin.js)
+[![Slack Status](https://openbazaar-slackin-drwasho.herokuapp.com/badge.svg)](https://openbazaar-slackin-drwasho.herokuapp.com)
 
 ======
 
