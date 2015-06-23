@@ -4,17 +4,17 @@
 [![Dev Build Status](https://travis-ci.org/OpenBazaar/OpenBazaar.svg?branch=develop)](https://travis-ci.org/OpenBazaar/OpenBazaar)
 [![Coverage Status](https://coveralls.io/repos/OpenBazaar/OpenBazaar/badge.png)](https://coveralls.io/r/OpenBazaar/OpenBazaar)
 [![Stories in Ready](https://badge.waffle.io/OpenBazaar/OpenBazaar.svg?label=ready&title=Ready)](http://waffle.io/OpenBazaar/OpenBazaar)
+[![Slack Status](https://openbazaar-slackin-drwasho.herokuapp.com/badge.svg)](https://openbazaar-slackin-drwasho.herokuapp.com)
 
 ======
 
-**Zero** Fees. **Zero** Censorship.
+Let's make trade **free**.
 
 **OpenBazaar** is a decentralized peer-to-peer marketplace where goods and services are traded in Bitcoin. OpenBazaar uses a Kademlia-style distributed hash table (DHT), which is architecturally comparable to BitTorrent. Items are created and hosted on the nodes of users on the network. The project is originally based off of the proof of concept code for DarkMarket, created by Amir Taaki and Airbitz, and is now licensed under the [MIT license](http://opensource.org/licenses/MIT).
 
 - **Official Site:** https://openbazaar.org
 - **Contact us:** project@openbazaar.org
-- **Slack:** https://openbazaar.slack.com
-  - [Email us](mailto:project@openbazaar.org) to apply for access
+- **Slack:** https://openbazaar-slackin-drwasho.herokuapp.com
 - **IRC Chat:** #OpenBazaar on [Freenode](https://webchat.freenode.net/)
 - **Forums:**
   - *unSYSTEM*: https://forum.unsystem.net/category/projects/openbazaar
