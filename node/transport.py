@@ -765,7 +765,7 @@ class CryptoTransportLayer(TransportLayer):
         self.pubkey = self.settings.get('pubkey', '')
         self.cryptor = Cryptor(pubkey_hex=self.pubkey, privkey_hex=self.secret)
 
-        if not self.guid:
+        if not self.settings.get('guid'):
             self._setup_guid()
 
         self.guid = self.settings.get('guid', '')
