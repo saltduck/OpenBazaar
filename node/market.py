@@ -1,7 +1,6 @@
 """
 This module manages all market related activities
 """
-from base64 import b64decode, b64encode
 import gnupg
 import hashlib
 import json
@@ -9,7 +8,6 @@ import logging
 from PIL import Image, ImageOps
 import random
 from StringIO import StringIO
-import traceback
 import re
 from tornado import ioloop
 
@@ -259,7 +257,6 @@ class Market(object):
         seller['seller_BTC_uncompressed_pubkey'] = self.generate_new_pubkey(contract_id)
         seller['seller_contract_id'] = contract_id
         seller['seller_GUID'] = self.settings['guid']
-        seller['seller_Bitmessage'] = self.settings['bitmessage']
         seller['seller_refund_addr'] = self.settings['refundAddress']
 
         # Process and crop thumbs for images
@@ -518,50 +515,6 @@ class Market(object):
                 }),
                 self.transport.guid
             )
-
-    def get_messages(self):
-        """Get messages listing for market"""
-        self.log.info(
-            "Listing messages for market: %s", self.transport.market_id)
-        settings = self.get_settings()
-        try:
-            # Request all messages for our address
-            if self.transport.bitmessage_api:
-                inboxmsgs = json.loads(
-
-                    self.transport.bitmessage_api.getInboxMessagesByReceiver(
-                        settings['bitmessage']))
-                for message in inboxmsgs['inboxMessages']:
-                    # Base64 decode subject and content
-                    message['subject'] = b64decode(message['subject'])
-                    message['message'] = b64decode(message['message'])
-                    # TODO: Augment with market, if available
-
-                return {"messages": inboxmsgs}
-        except Exception as exc:
-            self.log.error("Failed to get inbox messages: %s", exc)
-            self.log.error(traceback.format_exc())
-            return {}
-
-    def send_message(self, msg):
-        """Send message for market by bitmessage"""
-        self.log.info(
-            "Sending message for market: %s", self.transport.market_id)
-        settings = self.get_settings()
-        try:
-            # Base64 decode subject and content
-            self.log.info("Encoding message: %s", msg)
-            subject = b64encode(msg['subject'])
-            body = b64encode(msg['body'])
-            result = self.transport.bitmessage_api.sendMessage(
-                msg['to'], settings['bitmessage'], subject, body
-            )
-            self.log.info("Send message result: %s", result)
-            return {}
-        except Exception as exc:
-            self.log.error("Failed to send message: %s", exc)
-            self.log.error(traceback.format_exc())
-            return {}
 
     def send_inbox_message(self, msg):
         """Send message for market internally"""
@@ -824,7 +777,6 @@ class Market(object):
                 settings['nickname'],
                 settings.get('PGPPubKey', ''),
                 settings.get('email', ''),
-                settings.get('bitmessage', ''),
                 settings.get('arbiter', ''),
                 settings.get('notary', False),
                 settings.get('notaryDescription', ''),

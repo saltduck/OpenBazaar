@@ -404,7 +404,6 @@ angular.module('app')
             $scope.settings = {
                 email: '',
                 PGPPubKey: '',
-                bitmessage: '',
                 pubkey: '',
                 secret: '',
                 nickname: '',
@@ -779,7 +778,6 @@ angular.module('app')
 
             $scope.ViewMessageInstanceCtrl = function($scope, $modalInstance, myself, to_address, msg) {
                 $scope.myself = myself;
-                $scope.my_address = myself.bitmessage;
                 $scope.to_address = to_address;
                 $scope.msg = msg;
 

@@ -279,8 +279,6 @@ class Orders(object):
 
         # Generate QR code
         qr_code = self.get_qr_code(offer_data_json['Contract']['item_title'], _order['address'], total_price)
-        merchant_bitmessage = offer_data_json.get('Seller', '').get('seller_Bitmessage')
-        buyer_bitmessage = buyer_data_json.get('Buyer', '').get('buyer_Bitmessage')
 
         self.log.debug('Shipping Address: %s', _order.get('shipping_address'))
         if _order.get('buyer') == self.transport.guid:
@@ -300,8 +298,6 @@ class Orders(object):
                  "shipping_price": _order.get('shipping_price'),
                  "shipping_address": shipping_address,
                  "total_price": total_price,
-                 "merchant_bitmessage": merchant_bitmessage,
-                 "buyer_bitmessage": buyer_bitmessage,
                  "notary": notary,
                  "notary_fee": notary_fee,
                  "payment_address": _order.get('payment_address'),
@@ -460,8 +456,6 @@ class Orders(object):
         del order['total_price']
         del order['item_title']
         del order['item_desc']
-        del order['buyer_bitmessage']
-        del order['merchant_bitmessage']
         del order['payment_address_amount']
 
         order['state'] = Orders.State.SHIPPED
@@ -612,8 +606,6 @@ class Orders(object):
         del new_order['item_desc']
         del new_order['total_price']
         del new_order['item_title']
-        del new_order['buyer_bitmessage']
-        del new_order['merchant_bitmessage']
         del new_order['payment_address_amount']
 
         self.db_connection.update_entries("orders", new_order, {"order_id": order_id})
@@ -762,7 +754,6 @@ class Orders(object):
         buyer['Buyer']['buyer_BTC_uncompressed_pubkey'] = self.generate_new_order_pubkey(order_id)
         buyer['Buyer']['buyer_pgp'] = self.transport.settings['PGPPubKey']
         buyer['Buyer']['item_quantity'] = msg.get('productQuantity')
-        #buyer['Buyer']['buyer_Bitmessage'] = self.transport.settings['bitmessage']
         buyer['Buyer']['buyer_deliveryaddr'] = seller.encrypt(json.dumps(self.get_shipping_address())).encode(
             'hex')
         buyer['Buyer']['note_for_seller'] = msg['message']

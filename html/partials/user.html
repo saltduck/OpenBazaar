@@ -21,7 +21,6 @@
                         <td>
                             {{page.nickname ? page.nickname : "No nickname"}}<br/>
                             <button ng-controller="NewMessageCtrl" class="btn btn-sm btn-info" data-ng-click="compose_inbox_message('lg', myself, guid, null)">Message Me</button>
-                            <button ng-controller="ComposeMessageCtrl" data-ng-show="page.bitmessage != '' && settings.bitmessage != ''" class="btn btn-sm btn-info" data-ng-click="compose_message('lg', myself, page.bitmessage, null)">Bitmessage Me</button>
                             <a data-ng-href="mailto:{{page.email}}"><button data-ng-show="page.email != ''" class="btn btn-sm btn-info">Email Me</button></a>
                         </td>
                     </tr>
@@ -60,12 +59,6 @@
                 <tr data-ng-show="page.homepage">
                     <td class="col-xs-3">Web Site</td>
                     <td style="word-wrap:break-word"><a href="{{page.homepage}}" target="_blank">{{page.homepage}}</a></td>
-                </tr>
-                <tr data-ng-show="page.bitmessage">
-                    <td class="col-xs-3">Bitmessage Address</td>
-                    <td style="word-wrap:break-word"><a href="" data-ng-click="compose_message('lg', myself, page.bitmessage, null)">{{page.bitmessage}}</a>
-                        <!--<button class="btn btn-info" data-ng-click="compose_message('lg', myself, page.bitmessage, null)">Send Message</button>-->
-                    </td>
                 </tr>
                 <tr>
                     <td class="col-xs-3">Open Bazaar Public Key</td>

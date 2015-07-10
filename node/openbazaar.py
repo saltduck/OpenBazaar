@@ -162,15 +162,6 @@ openbazaar [options] <command>
     --disable-sqlite-crypt
         Disable encryption on sqlite database
 
-    --bm-user
-        Bitmessage API username
-
-    --bm-pass
-        Bitmessage API password
-
-    --bm-port
-        Bitmessage API port
-
     --mediator-port
         Act as a UDP mediator on this port
 

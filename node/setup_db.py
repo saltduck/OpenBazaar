@@ -135,7 +135,6 @@ _SCHEMA = (
             'PGPPubKey TEXT',
             'PGPPubkeyFingerprint TEXT',
             'bcAddress TEXT',
-            'bitmessage TEXT',
             'storeDescription TEXT',
             'street1 TEXT',
             'street2 TEXT',
