@@ -41,8 +41,6 @@ def create_argument_parser():
 
     # Argument entries should have the mandatory long form first.
     plain_args = (
-        ('--bm-pass',),
-        ('--bm-user',),
         ('--config-file',),
         ('--http-ip', '-k'),
         ('--log-level',),
@@ -54,7 +52,6 @@ def create_argument_parser():
         parser.add_argument(*switches, default=defaults[key])
 
     int_args = (
-        ('--bm-port',),
         ('--dev-nodes', '-n'),
         ('--http-port', '-q'),
         ('--server-port', '-p'),
@@ -269,9 +266,6 @@ def create_openbazaar_contexts(arguments, nat_status):
                                          log_path,
                                          arguments.log_level,
                                          arguments.market_id,
-                                         arguments.bm_user,
-                                         arguments.bm_pass,
-                                         arguments.bm_port,
                                          arguments.mediator_port,
                                          arguments.mediator,
                                          seed_tuples,
@@ -316,9 +310,6 @@ def create_openbazaar_contexts(arguments, nat_status):
                                              log_path,
                                              arguments.log_level,
                                              arguments.market_id,
-                                             arguments.bm_user,
-                                             arguments.bm_pass,
-                                             arguments.bm_port,
                                              arguments.mediator_port + i,
                                              arguments.mediator,
                                              seeds,
