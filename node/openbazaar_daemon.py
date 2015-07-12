@@ -56,9 +56,6 @@ class OpenBazaarContext(object):
                  log_path,
                  log_level,
                  market_id,
-                 bm_user,
-                 bm_pass,
-                 bm_port,
                  mediator_port,
                  mediator,
                  seeds,
@@ -79,9 +76,6 @@ class OpenBazaarContext(object):
         self.log_path = log_path
         self.log_level = log_level
         self.market_id = market_id
-        self.bm_user = bm_user
-        self.bm_pass = bm_pass
-        self.bm_port = bm_port
         self.mediator_port = mediator_port
         self.mediator = mediator
         self.seeds = seeds
@@ -105,9 +99,6 @@ class OpenBazaarContext(object):
                           "http_port": self.http_port,
                           "log_path": self.log_path,
                           "market_id": self.market_id,
-                          "bm_user": self.bm_user,
-                          "bm_pass": self.bm_pass,
-                          "bm_port": self.bm_port,
                           "mediator_port": self.mediator_port,
                           "mediator": self.mediator,
                           "seeds": self.seeds,
@@ -155,9 +146,6 @@ class OpenBazaarContext(object):
                 # CRITICAL=50 ERROR=40 WARNING=30 DEBUG=10 DEBUGV=9 DATADUMP=5 NOTSET=0
                 'http_ip': '127.0.0.1',
                 'http_port': 0,
-                'bm_user': None,
-                'bm_pass': None,
-                'bm_port': -1,
                 'mediator_port': 5000,
                 'mediator': False,
                 'enable_ip_checker': False,
@@ -176,9 +164,6 @@ class OpenBazaarContext(object):
             log_path=os.path.join(defaults['log_dir'], defaults['log_file']),
             log_level=defaults['log_level'],
             market_id=defaults['market_id'],
-            bm_user=defaults['bm_user'],
-            bm_pass=defaults['bm_pass'],
-            bm_port=defaults['bm_port'],
             mediator_port=defaults['mediator_port'],
             mediator=defaults['mediator'],
             seeds=defaults['seeds'],
