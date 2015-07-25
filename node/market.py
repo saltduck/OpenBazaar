@@ -773,7 +773,6 @@ class Market(object):
                 self.transport.pubkey,
                 self.transport.guid,
                 settings['storeDescription'],
-                self.signature,
                 settings['nickname'],
                 settings.get('PGPPubKey', ''),
                 settings.get('email', ''),
