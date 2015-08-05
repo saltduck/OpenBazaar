@@ -6,7 +6,7 @@ def shout(data):
     return data
 
 
-def proto_page(uri, pubkey, guid, text, signature, nickname, pgp_pub_key, email,
+def proto_page(uri, pubkey, guid, text, nickname, pgp_pub_key, email,
                arbiter, notary, notary_description, notary_fee,
                arbiter_description, sin, homepage, avatar_url):
     data = {
