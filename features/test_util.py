@@ -27,16 +27,16 @@ def node_uri(node_index):
 def set_store_description(i):
     ws_send(i, 'update_settings',
             {'settings':
-             {'storeDescription': storeDescription(i),
+             {'storeDescription': store_description(i),
               'nickname': nickname(i)}})
 
 
-def storeDescription(i):
+def store_description(i):
     return 'store %s' % i
 
 
 def remove_peers_from_db(i):
-    Obdb(get_db_path(i)).deleteEntries('peers')
+    Obdb(get_db_path(i)).delete_entries('peers')
 
 
 def node_to_ws_port(node_index):

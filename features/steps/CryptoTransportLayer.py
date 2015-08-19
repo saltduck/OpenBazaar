@@ -1,6 +1,6 @@
 #pylint: disable=function-redefined
 from behave import given, then, when
-from zmq.eventloop import ioloop
+from tornado import ioloop
 
 from node.db_store import Obdb
 from node.setup_db import setup_db
@@ -8,7 +8,7 @@ from node.openbazaar_daemon import OpenBazaarContext
 from node.transport import CryptoTransportLayer
 from features.test_util import ip_address, nickname, get_db_path
 
-port = 12345
+PORT = 12345
 
 
 def create_layers(context, num_layers):
@@ -20,7 +20,7 @@ def create_layers(context, num_layers):
         ob_ctx = OpenBazaarContext.create_default_instance()
         ob_ctx.dev_mode = True
         ob_ctx.server_ip = ip_address(i)
-        ob_ctx.server_port = port
+        ob_ctx.server_port = PORT
         db_path = get_db_path(i)
         setup_db(db_path, ob_ctx.disable_sqlite_crypt)
         layers.append(CryptoTransportLayer(ob_ctx, Obdb(db_path)))
@@ -36,15 +36,15 @@ def step_impl(context, num_layers):
 def step_impl(context, i, j):
     i = int(i)
     j = int(j)
-    iLayer = context.layers[i]
-    jLayer = context.layers[j]
+    i_layer = context.layers[i]
+    j_layer = context.layers[j]
 
-    jLayer.join_network([])
+    j_layer.join_network([])
 
-    def cb(msg):
+    def callback(msg):
         ioloop.IOLoop.current().stop()
 
-    iLayer.join_network([ip_address(j)], callback=cb)
+    i_layer.join_network([ip_address(j)], callback=callback)
     ioloop.IOLoop.current().start()
 
 
@@ -52,17 +52,18 @@ def step_impl(context, i, j):
 def step_impl(context, i, j):
     i = int(i)
     j = int(j)
-    iLayer = context.layers[i]
-    jLayer = context.layers[j]
+    i_layer = context.layers[i]
+    j_layer = context.layers[j]
 
-    assert (ip_address(j), port, jLayer.guid, nickname(j)) in iLayer.dht.knownNodes
+    known_node = (ip_address(j), PORT, j_layer.guid, nickname(j))
+    assert known_node in i_layer.dht.knownNodes
 
     # j is not necessarily in the database of i
-    # db_peers = iLayer._db.selectEntries("peers")
-    # assert(jLayer._uri in map(lambda x: x['uri'], known_peers))
+    # db_peers = i_layer._db.selectEntries("peers")
+    # assert(j_layer._uri in map(lambda x: x['uri'], known_peers))
 
     # j is not necessarily in activePeers of i
-    # assert(jLayer._guid in map(lambda x: x._guid, iLayer.dht._activePeers))
+    # assert(j_layer._guid in map(lambda x: x._guid, i_layer.dht._activePeers))
 
     # j is not necessarily in peers of i
-    # assert(jLayer._uri in iLayer._peers)
+    # assert(j_layer._uri in i_layer._peers)

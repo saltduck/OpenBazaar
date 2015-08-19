@@ -4,10 +4,14 @@
 
 <div class="modal-body"  style="text-align:left;">
 
+    <div class="alert alert-info">
+        Adding a store node does not automatically connect you. Your application will attempt to connect and if it cannot this store will not appear.
+    </div>
+
     <form role="form" name="addNodeForm">
         <div class="form-group">
             <label for="nodeGUID">Store GUID</label>
-            <input type="text" class="form-control" id="nodeGUID" name="nodeGUID" data-ng-model="newGUID" placeholder="Enter a GUID"/>
+            <input type="text" class="form-control" id="nodeGUID" name="nodeGUID" data-ng-model="newGUID" placeholder="Enter a GUID" required/>
         </div>
     </form>
 

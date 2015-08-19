@@ -9,7 +9,7 @@ ENV DEBIAN_FRONTEND noninteractive
 
 RUN apt-get -y update
 RUN apt-get -y upgrade
-RUN apt-get install -y build-essential python-zmq rng-tools
+RUN apt-get install -y build-essential rng-tools
 RUN apt-get install -y python-dev g++ libjpeg-dev sqlite3 openssl
 RUN apt-get install -y alien libssl-dev wget lintian libjs-jquery curl
 
@@ -20,8 +20,11 @@ RUN apt-get install -y alien libssl-dev wget lintian libjs-jquery curl
 #
 RUN curl --silent --show-error --retry 5 https://bootstrap.pypa.io/get-pip.py | sudo python2.7
 
-ADD . /bazaar
+
+ADD ./requirements.txt /bazaar/
 RUN cd /bazaar && pip install -r requirements.txt
+
+ADD . /bazaar
 
 ENV RUNSH_ARGS -q 8888 -p 12345
 
