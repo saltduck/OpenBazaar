@@ -221,7 +221,10 @@ class Market(object):
         self.log.debug('Generating new pubkey for contract')
 
         # Retrieve next key id from DB
-        next_key_id = int(self.db_connection.select_entries("keystore", select_fields="id")) + 1
+        try:
+            next_key_id = int(self.db_connection.select_entries("keystore", order='DESC', limit=1, select_fields="id")[0]['id']) + 1
+        except IndexError:
+            next_key_id = 1
 
         # Store updated key in DB
         self.db_connection.insert_entry(

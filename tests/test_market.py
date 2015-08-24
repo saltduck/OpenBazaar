@@ -16,7 +16,7 @@ class TestMarket(unittest.TestCase):
         self.transport.market_id = 1
         self.transport.settings = self.settings_mock
         self.db_mock = mock.MagicMock(spec=db_store.Obdb)
-        self.db_mock.select_entries.return_value = '6'
+        self.db_mock.select_entries.return_value = [{'id': '6'}]
         self.test_market = Market(self.transport, self.db_mock)
 
     def test_init(self):
@@ -163,9 +163,9 @@ class TestMarket(unittest.TestCase):
             "contracts", {"deleted": "0"})
 
     def test_ensure_pubkey_uses_correct_keystore_id(self):
-        self.db_mock.select_entries.return_value = '4'
+        self.db_mock.select_entries.return_value = [{'id': '4'}]
         four = self.test_market.generate_new_pubkey(4)
-        self.db_mock.select_entries.return_value = '5'
+        self.db_mock.select_entries.return_value = [{'id': '5'}]
         five = self.test_market.generate_new_pubkey(5)
         self.assertNotEqual(four, five)
 
